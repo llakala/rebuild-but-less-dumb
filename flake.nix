@@ -3,9 +3,16 @@
 
   outputs = { self, nixpkgs }:
   let
-    pkgs = import nixpkgs { system = "x86_64-linux"; };
+    lib = nixpkgs.lib;
+    forAllSystems = lib.genAttrs lib.systems.flakeExposed;
   in
   {
-    packages.x86_64-linux.default = import ./default.nix { inherit pkgs; };
+    packages = forAllSystems (system: let
+      pkgs = nixpkgs.legacyPackages.${system};
+    in
+    {
+      default = import ./default.nix { inherit pkgs; };
+    }
+    );
   };
 }
