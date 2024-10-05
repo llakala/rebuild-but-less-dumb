@@ -31,10 +31,6 @@ pkgs.writeShellApplication
           |& nom --json || return
         ;;
 
-      -h)
-        home-manager switch -b backup --flake $CONFIG_DIRECTORY
-        ;;
-        
       -f)
         OLD_TIME=$(get_time)
         nix flake update
@@ -56,10 +52,9 @@ pkgs.writeShellApplication
       *)
         cat <<EOF
         ${"\n" + ''
-        Usage: rbld (-n|-h|-f|)
+        Usage: rbld (-n|-f|)
         Options:
-        -n          Rebuild both the system configuration and the home-manager configuration
-        -h          Rebuild *only* the home-manager configuration
+        -n          Rebuild the system configuration
         -f          Update the flake.lock and rebuild if necessary
       ''}EOF
         ;;
