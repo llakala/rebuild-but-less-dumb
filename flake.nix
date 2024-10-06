@@ -3,16 +3,24 @@
 
   outputs = { self, nixpkgs }:
   let
-    lib = nixpkgs.lib;
-    forAllSystems = lib.genAttrs lib.systems.flakeExposed;
+    forAllSystems = function:
+      nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed
+      (system: function nixpkgs.legacyPackages.${system});
+
   in
   {
-    packages = forAllSystems (system: let
-      pkgs = nixpkgs.legacyPackages.${system};
-    in
+    packages = forAllSystems (pkgs: 
     {
       default = import ./default.nix { inherit pkgs; };
-    }
-    );
+    });
+
+    devShells = forAllSystems (pkgs:
+    {
+      default = pkgs.mkShell
+      {
+        packages = [ self.packages.${pkgs.system}.default ];
+      };
+    });
+
   };
 }
