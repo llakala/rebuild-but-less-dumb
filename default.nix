@@ -31,7 +31,7 @@ pkgs.writeShellApplication
 
     get_time() # Get flake.lock revisions times for the inputs we care about
     {
-      jq -r '([.nodes["home-manager", "nixpkgs", "nixpkgs-unstable"].locked.lastModified] | add)' flake.lock
+      jq -r '([.nodes["home-manager", "nixpkgs", "nixpkgs-unstable", "rbld"].locked.lastModified] | add)' flake.lock
     }
 
     if [[ -z "$1"  ]]; # Easy solution since we couldn't get ''${1:-nixos} syntax working
