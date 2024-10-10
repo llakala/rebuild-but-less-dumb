@@ -62,7 +62,7 @@ pkgs.writeShellApplication
 
     if [[ $REBUILD_TYPE == "nixos" ]]; then
       git add -AN
-        nixos-rebuild switch \
+      nixos-rebuild switch \
         --use-remote-sudo --fast \
         --log-format internal-json \
         |& nom --json || return
@@ -83,7 +83,13 @@ pkgs.writeShellApplication
 
       rbld nixos -d "$directory" # If we fail here, we exit early and don't commit something broken
       git commit -q -m "flake: update flake.lock" flake.lock
-      git push
+      
+      if git ls-remote origin; then
+        echo "Connection found, pushing."
+        git push
+      else
+        echo "Can't reach the remote repo to push. Try pushing again later."
+      fi
 
 
     else
