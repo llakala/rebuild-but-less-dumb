@@ -9,9 +9,9 @@
 
   in
   {
-    packages = forAllSystems (pkgs: 
+    packages = forAllSystems (pkgs:
     {
-      default = import ./default.nix { inherit pkgs; };
+      default = pkgs.callPackage ./default.nix { };
     });
 
     devShells = forAllSystems (pkgs:
