@@ -34,6 +34,14 @@ pkgs.writeShellApplication
       jq -r '([.nodes["home-manager", "nixpkgs", "nixpkgs-unstable", "rbld"].locked.lastModified] | add)' flake.lock
     }
 
+    switch_back()
+    {
+      CURRENT_BRANCH=$(git branch --show-current)
+      if [[ $CURRENT_BRANCH != "$PREVIOUS_BRANCH" ]]; then
+        git switch --quiet "$PREVIOUS_BRANCH"
+      fi
+    }
+
     if [[ -z "$1"  ]]; # Easy solution since we couldn't get ''${1:-nixos} syntax working
       then
         REBUILD_TYPE="nixos"
@@ -69,6 +77,26 @@ pkgs.writeShellApplication
 
 
     elif [[ $REBUILD_TYPE == "flake" ]]; then
+      PREVIOUS_BRANCH=$(git branch --show-current)
+
+      if [[ -n $(git status --porcelain) ]]; then
+        echo "You have uncommited changes in your current branch $PREVIOUS_BRANCH."
+        echo "Please stash your changes and try again."
+        exit 1
+      fi
+
+      if git rev-parse --verify main > /dev/null; then
+        git switch --quiet main
+      elif git rev-parse --verify master > /dev/null; then
+        git switch --quiet master
+      else
+        echo "Your primary branch isn't named master or main, so we can't switch to it for updating flake inputs."
+        echo "Complain on Github Issues and I'll add a parameter to choose the primary branch."
+        exit 1
+      fi
+
+      trap switch_back EXIT # When script ends, swap back to the branch the user was on before
+
       OLD_TIME=$(get_time)
       nix flake update
       NEW_TIME=$(get_time)
