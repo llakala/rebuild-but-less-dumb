@@ -135,15 +135,15 @@ pkgs.writeShellApplication
       fi
 
       rbld nixos -d "$directory" # If we fail here, we exit early and don't commit something broken
-      git commit -q -m "flake: update flake.lock" flake.lock
+      git commit --quiet -m "flake: update flake.lock" flake.lock
       
-      if ! git ls-remote origin; then # For when internet is spotty
+      if ! git ls-remote origin --quiet; then # For when internet is spotty
         echo "Can't reach the remote repo to push. Try pushing again later."
         exit 1
       fi
 
       echo "Connection found, pushing."
-      git push
+      git push --quiet
 
 
     else # When something like `rbld fjdsfh` is passed
