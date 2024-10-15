@@ -35,7 +35,7 @@ pkgs.writeShellApplication
       jq -r '([.nodes["home-manager", "nixpkgs", "nixpkgs-unstable", "rbld"].locked.lastModified] | add)' flake.lock
     }
 
-    switch_back()
+    switch_back() # Called as a trap so we return from main/master to whatever branch the user was on
     {
       CURRENT_BRANCH=$(git branch --show-current)
       if [[ $CURRENT_BRANCH != "$PREVIOUS_BRANCH" ]]; then
@@ -57,9 +57,9 @@ pkgs.writeShellApplication
       return 1
     }
 
-    switch_to_primary_branch()
+    switch_to_primary_branch() # Return 1 if we couldn't find a primary branch to switch into
     {
-      for branch in "''${PRIMARY_BRANCHES[@]}"; do # Swap to primary branch, or exit early if we can't find it
+      for branch in "''${PRIMARY_BRANCHES[@]}"; do
         if git rev-parse --verify "$branch" > /dev/null 2>&1; then
           git switch --quiet "$branch"
           return 0
@@ -95,7 +95,7 @@ pkgs.writeShellApplication
     cd "$directory"
 
     if [[ $ACTION == "nixos" ]]; then
-      git add -AN
+      git add -AN # Adds the existence of any new files, but not their contents
       nixos-rebuild switch \
         --use-remote-sudo --fast \
         --log-format internal-json \
@@ -137,17 +137,17 @@ pkgs.writeShellApplication
       rbld nixos -d "$directory" # If we fail here, we exit early and don't commit something broken
       git commit -q -m "flake: update flake.lock" flake.lock
       
-      if ! git ls-remote origin; then
+      if ! git ls-remote origin; then # For when internet is spotty
         echo "Can't reach the remote repo to push. Try pushing again later."
-        exit 0
+        exit 1
       fi
 
       echo "Connection found, pushing."
       git push
 
 
-    else
-      echo "Invalid parameter passed: $ACTION" >&2
+    else # When something like `rbld fjdsfh` is passed
+      echo "Invalid argument passed: $ACTION" >&2
       exit 1
 
     fi
