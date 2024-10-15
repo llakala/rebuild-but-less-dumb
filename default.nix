@@ -17,6 +17,7 @@ pkgs.writeShellApplication
     set +u # NOUNSET RUINS MY DAY, we need to unset it to check whether $1 was passed
 
     directory="/etc/nixos" # Default path unless -d is passed
+    PRIMARY_BRANCHES=("main" "master")
 
     usage()
     {
@@ -42,12 +43,37 @@ pkgs.writeShellApplication
       fi
     }
 
-    if [[ -z "$1"  ]]; # Easy solution since we couldn't get ''${1:-nixos} syntax working
-      then
-        REBUILD_TYPE="nixos"
-      else
-        REBUILD_TYPE="$1"
-        shift
+    in_primary_branch() # Check if we're currently on the primary branch
+    {
+      current_branch=$1
+
+      for primary_branch in "''${PRIMARY_BRANCHES[@]}"; do
+
+        if [[ $current_branch == "$primary_branch" ]]; then
+          return 0
+        fi
+
+      done
+      return 1
+    }
+
+    switch_to_primary_branch()
+    {
+      for branch in "''${PRIMARY_BRANCHES[@]}"; do # Swap to primary branch, or exit early if we can't find it
+        if git rev-parse --verify "$branch" > /dev/null 2>&1; then
+          git switch --quiet "$branch"
+          return 0
+        fi
+      done
+
+      return 1
+    }
+
+    if [[ -z "$1"  ]]; then # Easy solution since we couldn't get ''${1:-nixos} syntax working
+      ACTION="nixos"
+    else
+      ACTION="$1"
+      shift
     fi
 
     while getopts ":d:" opt; do
@@ -68,34 +94,32 @@ pkgs.writeShellApplication
 
     cd "$directory"
 
-    if [[ $REBUILD_TYPE == "nixos" ]]; then
+    if [[ $ACTION == "nixos" ]]; then
       git add -AN
       nixos-rebuild switch \
         --use-remote-sudo --fast \
         --log-format internal-json \
-        |& nom --json || return
+        |& nom --json || exit 1
 
 
-    elif [[ $REBUILD_TYPE == "flake" ]]; then
+    elif [[ $ACTION == "flake" ]]; then
       PREVIOUS_BRANCH=$(git branch --show-current)
 
-      if [[ -n $(git status --porcelain) ]]; then
+      if [[ -n $(git status --porcelain) ]] && ! in_primary_branch "$PREVIOUS_BRANCH"; then # Exit early if we're not in primary branch and have uncommited changes
         echo "You have uncommited changes in your current branch $PREVIOUS_BRANCH."
         echo "Please stash your changes and try again."
         exit 1
       fi
 
-      if git rev-parse --verify main > /dev/null; then
-        git switch --quiet main
-      elif git rev-parse --verify master > /dev/null; then
-        git switch --quiet master
-      else
-        echo "Your primary branch isn't named master or main, so we can't switch to it for updating flake inputs."
+
+      if ! switch_to_primary_branch; then
+        echo "Your primary branch can't be found to be swapped to."
         echo "Complain on Github Issues and I'll add a parameter to choose the primary branch."
         exit 1
       fi
 
-      trap switch_back EXIT # When script ends, swap back to the branch the user was on before
+
+      trap switch_back EXIT err # When script ends, swap back to the branch the user was on before
 
       OLD_TIME=$(get_time)
       nix flake update
@@ -106,6 +130,7 @@ pkgs.writeShellApplication
 
       if [[ $NEW_TIME == "$OLD_TIME" ]]; then
         echo "No important updates to flake.lock, so skipping rebuild"
+        git restore flake.lock # Not ideal since we'll be redoing changes every time, but needed to return to a previous branch
         exit 0
       fi
 
@@ -122,7 +147,7 @@ pkgs.writeShellApplication
 
 
     else
-      echo "Invalid parameter passed: $REBUILD_TYPE" >&2
+      echo "Invalid parameter passed: $ACTION" >&2
       exit 1
 
     fi
