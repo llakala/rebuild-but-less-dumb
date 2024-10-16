@@ -13,23 +13,22 @@ pkgs.writeShellApplication
     PRIMARY_BRANCHES=("main" "master")
     DIRECTORY="/etc/nixos" # Default path unless -d is passed
 
-
-    get_time() # Get flake.lock revisions times for the inputs we care about
+    get_revision_time() # Get flake.lock revisions times for the inputs we care about
     {
       jq -r '([.nodes["home-manager", "nixpkgs", "nixpkgs-unstable", "rbld"].locked.lastModified] | add)' flake.lock
     }
 
-    switch_back() # Called as a trap so we return from main/master to whatever branch the user was on
+    return_to_secondary() # Called as a trap so we return from main/master to whatever branch the user was on
     {
-      CURRENT_BRANCH=$(git branch --show-current)
-      if [[ $CURRENT_BRANCH != "$PREVIOUS_BRANCH" ]]; then
-        git switch --quiet "$PREVIOUS_BRANCH"
+      current_branch=$(git branch --show-current)
+      if [[ $current_branch != "$previous_branch" ]]; then
+        git switch --quiet "$previous_branch"
       fi
     }
 
-    in_primary_branch() # Check if we're currently on the primary branch
+    on_secondary_branch() # Return whether we're on a branch other than main/master
     {
-      current_branch=$1
+      local current_branch=$1
 
       for primary_branch in "''${PRIMARY_BRANCHES[@]}"; do
 
@@ -41,7 +40,7 @@ pkgs.writeShellApplication
       return 1
     }
 
-    switch_to_primary_branch() # Return 1 if we couldn't find a primary branch to switch into
+    switch_to_primary() # Return 1 if we couldn't find a primary branch to switch into
     {
       for branch in "''${PRIMARY_BRANCHES[@]}"; do
         if git rev-parse --verify "$branch" > /dev/null 2>&1; then
@@ -71,34 +70,39 @@ pkgs.writeShellApplication
 
     cd "$DIRECTORY"
 
-    PREVIOUS_BRANCH=$(git branch --show-current)
+    previous_branch=$(git branch --show-current) # Only set this *after* entering $DIRECTORY
+    not_on_main=$(on_secondary_branch "$previous_branch")
 
-    if [[ -n $(git status --porcelain) ]] && ! in_primary_branch "$PREVIOUS_BRANCH"; then # Exit early if we're not in primary branch and have uncommited changes
-      echo "You have uncommited changes in your current branch $PREVIOUS_BRANCH."
-      echo "Please stash your changes and try again."
+    if [[ -n $(git status --porcelain) ]] && $not_on_main; then # Exit early if we're not in primary branch and have uncommited changes
+      echo "You have uncommited changes in your current branch $previous_branch."
+      echo "This script only updates flake inputs on the primary branch, as it's likely what you meant to do."
+      echo "Please stash/commit your changes and try again."
       exit 1
     fi
 
 
-    if ! switch_to_primary_branch; then
+    if switch_to_primary; then
+      trap return_to_secondary EXIT err # When script ends, swap back to the branch the user was on before
+    else
       echo "Your primary branch can't be found to be swapped to."
       echo "Complain on Github Issues and I'll add a parameter to choose the primary branch."
       exit 1
     fi
 
 
-    trap switch_back EXIT err # When script ends, swap back to the branch the user was on before
-
-    OLD_TIME=$(get_time)
+    old_time=$(get_revision_time)
     nix flake update
-    NEW_TIME=$(get_time)
+    new_time=$(get_revision_time)
 
-    echo "Old time: $OLD_TIME" # Logs for debugging
-    echo "New time: $NEW_TIME"
+    echo "Old time: $old_time" # Logs for debugging
+    echo "New time: $new_time"
 
-    if [[ $NEW_TIME == "$OLD_TIME" ]]; then
+    if [[ $old_time == "$new_time" ]]; then
       echo "No important updates to flake.lock, so skipping rebuild"
-      git restore flake.lock # Not ideal since we'll be redoing changes every time, but needed to return to a previous branch
+
+      echo "Undoing flake.lock changes."
+      git restore flake.lock 
+
       exit 0
     fi
 
