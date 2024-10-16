@@ -11,14 +11,19 @@
   {
     packages = forAllSystems (pkgs:
     {
-      default = pkgs.callPackage ./default.nix { };
+      rbld = pkgs.callPackage ./rbld.nix { };
+      unify = pkgs.callPackage ./unify.nix { }; 
     });
 
     devShells = forAllSystems (pkgs:
     {
       default = pkgs.mkShell
       {
-        packages = [ self.packages.${pkgs.system}.default ];
+        packages = with self.packages.${pkgs.system};
+        [ 
+          rbld
+          unify
+        ];
       };
     });
 
