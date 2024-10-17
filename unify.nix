@@ -14,10 +14,16 @@ pkgs.writeShellApplication
 
     PRIMARY_BRANCHES="main master"
     DIRECTORY="/etc/nixos" # Default path unless -d is passed
+    IMPORTANT_INPUTS="nixpkgs nixpkgs-unstable home-manager rbld"
 
-    get_revision_time() # Get flake.lock revisions times for the inputs we care about
+    sum_all_revisions() # Call get_revision_time for each input in IMPORTANT_INPUTS
     {
-      jq -r '([.nodes["home-manager", "nixpkgs", "nixpkgs-unstable", "rbld"].locked.lastModified] | add)' flake.lock
+      sum=0
+      for input in $IMPORTANT_INPUTS; do
+        time=$(jq --arg input "$input" '.nodes[.nodes[.root].inputs[$input]].locked.lastModified' flake.lock)
+        sum=$((sum + time))
+      done
+      echo $sum # Returns value of sum
     }
 
     return_to_secondary() # Called as a trap so we return from main/master to whatever branch the user was on
@@ -91,10 +97,9 @@ pkgs.writeShellApplication
       exit 1
     fi
 
-
-    old_time=$(get_revision_time)
+    old_time=$(sum_all_revisions)
     nix flake update
-    new_time=$(get_revision_time)
+    new_time=$(sum_all_revisions)
 
     echo "Old time: $old_time" # Logs for debugging
     echo "New time: $new_time"
