@@ -10,7 +10,9 @@ pkgs.writeShellApplication
   ];
   text = 
   ''
-    PRIMARY_BRANCHES=("main" "master")
+    set +e # May cause us problems in the future, but helpful for debugging
+
+    PRIMARY_BRANCHES="main master"
     DIRECTORY="/etc/nixos" # Default path unless -d is passed
 
     get_revision_time() # Get flake.lock revisions times for the inputs we care about
@@ -30,7 +32,7 @@ pkgs.writeShellApplication
     {
       local current_branch=$1
 
-      for primary_branch in "''${PRIMARY_BRANCHES[@]}"; do
+      for primary_branch in $PRIMARY_BRANCHES; do
 
         if [[ $current_branch == "$primary_branch" ]]; then
           return 0
@@ -42,7 +44,7 @@ pkgs.writeShellApplication
 
     switch_to_primary() # Return 1 if we couldn't find a primary branch to switch into
     {
-      for branch in "''${PRIMARY_BRANCHES[@]}"; do
+      for branch in $PRIMARY_BRANCHES; do
         if git rev-parse --verify "$branch" > /dev/null 2>&1; then
           git switch --quiet "$branch"
           return 0
@@ -82,7 +84,7 @@ pkgs.writeShellApplication
 
 
     if switch_to_primary; then
-      trap return_to_secondary EXIT err # When script ends, swap back to the branch the user was on before
+      trap return_to_secondary EXIT # When script ends, swap back to the branch the user was on before
     else
       echo "Your primary branch can't be found to be swapped to."
       echo "Complain on Github Issues and I'll add a parameter to choose the primary branch."
@@ -106,7 +108,7 @@ pkgs.writeShellApplication
       exit 0
     fi
 
-    rbld nixos -d "$DIRECTORY" # If we fail here, we exit early and don't commit something broken
+    rbld nixos -d "$DIRECTORY"
     git commit --quiet -m "flake: update flake.lock" flake.lock
     
     if ! git ls-remote origin --quiet; then # For when internet is spotty
