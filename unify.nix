@@ -34,7 +34,7 @@ pkgs.writeShellApplication
       fi
     }
 
-    on_secondary_branch() # Return whether we're on a branch other than main/master
+    on_primary_branch() # Return whether we're on one of the branches stored in PRIMARY_BRANCHES
     {
       local current_branch=$1
 
@@ -77,11 +77,9 @@ pkgs.writeShellApplication
     done
 
     cd "$DIRECTORY"
-
     previous_branch=$(git branch --show-current) # Only set this *after* entering $DIRECTORY
-    not_on_main=$(on_secondary_branch "$previous_branch")
 
-    if [[ -n $(git status --porcelain) ]] && $not_on_main; then # Exit early if we're not in primary branch and have uncommited changes
+    if [[ -n $(git status --porcelain) ]] && ! on_primary_branch "$previous_branch"; then # Exit early if we're not in primary branch and have uncommited changes
       echo "You have uncommited changes in your current branch $previous_branch."
       echo "This script only updates flake inputs on the primary branch, as it's likely what you meant to do."
       echo "Please stash/commit your changes and try again."
