@@ -7,10 +7,15 @@ pkgs.writeShellApplication
     git
     jq
     nix
+    bash
   ];
   text = 
   ''
-    set +e # May cause us problems in the future, but helpful for debugging
+    set -o nounset # -u
+    set -o errexit # -e
+    set -o pipefail
+    set -o errtrace # -E
+    shopt -s inherit_errexit
 
     PRIMARY_BRANCHES="main master"
     DIRECTORY="/etc/nixos" # Default path unless -d is passed
