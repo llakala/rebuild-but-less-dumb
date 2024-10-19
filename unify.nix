@@ -111,7 +111,7 @@ pkgs.writeShellApplication
       exit 0
     fi
 
-    rbld nixos -d "$DIRECTORY"
+    rbld -d "$DIRECTORY"
     git commit --quiet -m "flake: update flake.lock" flake.lock
     
     if ! git ls-remote origin --quiet; then # For when internet is spotty
