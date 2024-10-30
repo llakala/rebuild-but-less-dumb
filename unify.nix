@@ -18,8 +18,10 @@ pkgs.writeShellApplication
     shopt -s inherit_errexit
 
     PRIMARY_BRANCHES="main master"
-    DIRECTORY="/etc/nixos" # Default path unless -d is passed
-    IMPORTANT_INPUTS="nixpkgs nixpkgs-unstable home-manager rbld"
+
+    # Check if environment variables are overriding the default values
+    DIRECTORY="''${FLAKE:-/etc/nixos}"
+    IMPORTANT_INPUTS="''${INPUTS_TRIGGERING_REBUILD:-nixpkgs rbld}"
 
     sum_all_revisions() # Call get_revision_time for each input in IMPORTANT_INPUTS
     {
