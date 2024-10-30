@@ -65,16 +65,19 @@ pkgs.writeShellApplication
       return 1
     }
     
-    while getopts ":d:" opt; do
+    while getopts ":d:i:" opt; do
       case $opt in
         d)
           DIRECTORY=$OPTARG
+          ;;
+        i)
+          IMPORTANT_INPUTS=$OPTARG
           ;;
         \?) # Undefined option like -q
           echo "Invalid option: -$OPTARG" >&2
           exit 1
           ;;
-        :) # Setting -d without an argument
+        :) # doing `unify -d` or `unify -t` without passing something
           echo "Option -$OPTARG requires an argument." >&2
           exit 1
           ;;
