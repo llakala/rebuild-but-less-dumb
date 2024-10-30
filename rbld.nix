@@ -13,9 +13,9 @@ pkgs.writeShellApplication
   ''
     set -e
 
-    directory="/etc/nixos" # Default path unless -d is passed
-        
-    while getopts ":d:" opt; do
+    directory="''${FLAKE:-/etc/nixos}" # Override default config directory value with $FLAKE
+
+    while getopts ":d:" opt; do # Or, if you just need to override the directory once, use `-d`
       case $opt in
         d)
           directory=$OPTARG
