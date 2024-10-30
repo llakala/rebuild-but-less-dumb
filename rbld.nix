@@ -37,6 +37,7 @@ pkgs.writeShellApplication
     nixos-rebuild switch \
       --use-remote-sudo --fast \
       --log-format internal-json \
+      --flake "$directory" \
       |& nom --json || exit 1
 
     '';
