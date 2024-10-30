@@ -11,7 +11,7 @@ pkgs.writeShellApplication
   ];
   text = 
   ''
-    set -o nounset # -u
+    set -o nounset # -u, checks for unbound variables
     set -o errexit # -e
     set -o pipefail
     set -o errtrace # -E
@@ -65,7 +65,7 @@ pkgs.writeShellApplication
       return 1
     }
     
-    while getopts ":d:i:" opt; do
+    while getopts ":d:i:" opt; do # Overrides environment variables values
       case $opt in
         d)
           DIRECTORY=$OPTARG
