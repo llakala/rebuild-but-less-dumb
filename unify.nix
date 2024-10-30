@@ -19,9 +19,9 @@ pkgs.writeShellApplication
 
     PRIMARY_BRANCHES="main master"
 
-    # Check if environment variables are overriding the default values
+    # Use environment variables if they're overriding the default values
     DIRECTORY="''${FLAKE:-/etc/nixos}"
-    IMPORTANT_INPUTS="''${INPUTS_TRIGGERING_REBUILD:-nixpkgs rbld}"
+    IMPORTANT_INPUTS="''${INPUTS_TRIGGERING_REBUILD:-nixpkgs rebuild-but-less-dumb}"
 
     sum_all_revisions() # Call get_revision_time for each input in IMPORTANT_INPUTS
     {
