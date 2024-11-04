@@ -23,6 +23,25 @@ pkgs.writeShellApplication
     DIRECTORY="''${FLAKE:-/etc/nixos}"
     IMPORTANT_INPUTS="''${INPUTS_TRIGGERING_REBUILD:-nixpkgs rebuild-but-less-dumb}"
 
+    while getopts ":d:i:" opt; do # Overrides environment variables values
+      case $opt in
+        d)
+          DIRECTORY=$OPTARG
+          ;;
+        i)
+          IMPORTANT_INPUTS=$OPTARG
+          ;;
+        \?) # Undefined option like -q
+          echo "Invalid option: -$OPTARG" >&2
+          exit 1
+          ;;
+        :) # doing `unify -d` or `unify -t` without passing something
+          echo "Option -$OPTARG requires an argument." >&2
+          exit 1
+          ;;
+      esac
+    done
+
     sum_all_revisions() # Call get_revision_time for each input in IMPORTANT_INPUTS
     {
       sum=0
@@ -66,25 +85,7 @@ pkgs.writeShellApplication
 
       return 1
     }
-    
-    while getopts ":d:i:" opt; do # Overrides environment variables values
-      case $opt in
-        d)
-          DIRECTORY=$OPTARG
-          ;;
-        i)
-          IMPORTANT_INPUTS=$OPTARG
-          ;;
-        \?) # Undefined option like -q
-          echo "Invalid option: -$OPTARG" >&2
-          exit 1
-          ;;
-        :) # doing `unify -d` or `unify -t` without passing something
-          echo "Option -$OPTARG requires an argument." >&2
-          exit 1
-          ;;
-      esac
-    done
+
 
     cd "$DIRECTORY"
     previous_branch=$(git branch --show-current) # Only set this *after* entering $DIRECTORY
