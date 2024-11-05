@@ -9,7 +9,7 @@ pkgs.writeShellApplication
     nix
     bash
   ];
-  excludeShellChecks =
+  excludeShellChecks = # Shellcheck checks to ignore. ex: "SC2016"
   [
 
   ];
@@ -107,7 +107,7 @@ pkgs.writeShellApplication
 
 
     if switch_to_primary; then
-      trap return_to_secondary EXIT # When script ends, swap back to the branch the user was on before
+      trap return_to_secondary EXIT # When script ends or is interrupted, swap back to the branch the user was on before
     else
       echo "Your primary branch can't be found to be swapped to."
       echo "Complain on Github Issues and I'll add a parameter to choose the primary branch."
