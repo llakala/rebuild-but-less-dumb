@@ -1,4 +1,21 @@
 { pkgs, ... }:
+let
+  isEmptyString = string: string == "";
+
+  /*
+    Returns the value of the given environment variable if it exists. 
+    If it doesn't exist, returns the default value specified. 
+  */
+  getEnvOrDefault = { variable, defaultValue }:
+    if isEmptyString
+    (
+      builtins.getEnv variable
+    )
+    then
+      defaultValue
+    else
+      builtins.getEnv variable;
+in
 pkgs.writeShellApplication
 {
   name = "unify";
@@ -20,15 +37,24 @@ pkgs.writeShellApplication
     "pipefail"
     "errtrace" # -E
   ];
-  text = 
+  runtimeEnv =
+  {
+    PRIMARY_BRANCHES="main master";
+
+    DIRECTORY = getEnvOrDefault
+    {
+      variable = "FLAKE";
+      defaultValue = "/etc/nixos";
+    };
+    IMPORTANT_INPUTS = getEnvOrDefault
+    {
+      variable = "INPUTS_TRIGGERING_REBUILD";
+      defaultValue = "nixpkgs rebuild-but-less-dumb";
+    };
+  };
+  text =
   ''
     shopt -s inherit_errexit
-
-    PRIMARY_BRANCHES="main master"
-
-    # Use environment variables if they're overriding the default values
-    DIRECTORY="''${FLAKE:-/etc/nixos}"
-    IMPORTANT_INPUTS="''${INPUTS_TRIGGERING_REBUILD:-nixpkgs rebuild-but-less-dumb}"
 
     while getopts ":d:i:" opt; do # Overrides environment variables values
       case $opt in
@@ -125,14 +151,14 @@ pkgs.writeShellApplication
       echo "No important updates to flake.lock, so skipping rebuild"
 
       echo "Undoing flake.lock changes."
-      git restore flake.lock 
+      git restore flake.lock
 
       exit 0
     fi
 
     rbld -d "$DIRECTORY"
     git commit --quiet -m "flake: update flake.lock" flake.lock
-    
+
     if ! git ls-remote origin --quiet; then # For when internet is spotty
       echo "Can't reach the remote repo to push. Try pushing again later."
       exit 1
