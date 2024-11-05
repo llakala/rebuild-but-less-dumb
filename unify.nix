@@ -58,6 +58,7 @@ pkgs.writeShellApplication
       if [[ $current_branch != "$previous_branch" ]]; then
         git switch --quiet "$previous_branch"
       fi
+      git restore flake.lock
     }
 
     on_primary_branch() # Return whether we're on one of the branches stored in PRIMARY_BRANCHES
