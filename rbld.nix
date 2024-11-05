@@ -34,6 +34,8 @@ pkgs.writeShellApplication
     cd "$directory"
 
     git add -AN # Adds the existence of any new files, but not their contents
+
+    sudo -v || exit # Rather than having to verify sudo during rebuild, we do it before. works as long as rebuild is <5 minutes
     nixos-rebuild switch \
       --use-remote-sudo --fast \
       --log-format internal-json \
