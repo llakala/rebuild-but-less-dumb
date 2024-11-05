@@ -49,7 +49,7 @@ pkgs.writeShellApplication
         time=$(jq --arg input "$input" '.nodes[.nodes[.root].inputs[$input]].locked.lastModified' flake.lock)
         sum=$((sum + time))
       done
-      echo $sum # Returns value of sum
+      echo "$sum" # Returns value of sum
     }
 
     return_to_secondary() # Called as a trap so we return from main/master to whatever branch the user was on
