@@ -9,12 +9,19 @@ pkgs.writeShellApplication
     nix
     bash
   ];
+  excludeShellChecks =
+  [
+
+  ];
+  bashOptions =
+  [
+    "nounset" # -u
+    "errexit" # -e
+    "pipefail"
+    "errtrace" # -E
+  ];
   text = 
   ''
-    set -o nounset # -u, checks for unbound variables
-    set -o errexit # -e
-    set -o pipefail
-    set -o errtrace # -E
     shopt -s inherit_errexit
 
     PRIMARY_BRANCHES="main master"
