@@ -24,13 +24,14 @@ pkgs.writeShellApplication
   ''
     shopt -s inherit_errexit
 
-    PRIMARY_BRANCHES="main master"
-
     # Use environment variables if they're overriding the default values
     DIRECTORY="''${FLAKE:-/etc/nixos}"
     IMPORTANT_INPUTS="''${INPUTS_TRIGGERING_REBUILD:-nixpkgs rebuild-but-less-dumb}"
+    FLAKE_COMMIT_MESSAGE="''${FLAKE_COMMIT_MESSAGE:-flake: update flake.lock}"
+    PRIMARY_BRANCHES="''${PRIMARY_BRANCHES:-main master}"
 
-    while getopts ":d:i:" opt; do # Overrides environment variables values
+
+    while getopts ":d:i:c:p:" opt; do # Override default/environment values once
       case $opt in
         d)
           DIRECTORY=$OPTARG
@@ -38,7 +39,13 @@ pkgs.writeShellApplication
         i)
           IMPORTANT_INPUTS=$OPTARG
           ;;
-        \?) # Undefined option like -q
+        c)
+          FLAKE_COMMIT_MESSAGE=$OPTARG
+          ;;
+        p)
+          PRIMARY_BRANCHES=$OPTARG
+          ;;
+        \?) # Using an undefined option (ex: `unify -q foobar`)
           echo "Invalid option: -$OPTARG" >&2
           exit 1
           ;;
@@ -131,7 +138,7 @@ pkgs.writeShellApplication
     fi
 
     rbld -d "$DIRECTORY"
-    git commit --quiet -m "flake: update flake.lock" flake.lock
+    git commit --quiet --message "$FLAKE_COMMIT_MESSAGE" flake.lock
     
     if ! git ls-remote origin --quiet; then # For when internet is spotty
       echo "Can't reach the remote repo to push. Try pushing again later."
