@@ -1,6 +1,6 @@
 shopt -s inherit_errexit
 
-directory="${FLAKE:-/etc/nixos}" # Override default config directory value with $FLAKE
+directory="${RBLD_DIRECTORY:-/etc/nixos}" # Override default config directory value with $FLAKE
 
 # Or, if you just need to override the directory once, use `-d`
 while getopts ":d:" opt; do
