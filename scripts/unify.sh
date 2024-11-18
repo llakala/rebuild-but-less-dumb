@@ -1,10 +1,11 @@
 shopt -s inherit_errexit
 
 # Use environment variables if they're overriding the default values
-DIRECTORY="${FLAKE:-/etc/nixos}"                                               # Directory that your NixOS config is located in
-IMPORTANT_INPUTS="${INPUTS_TRIGGERING_REBUILD:-nixpkgs rebuild-but-less-dumb}" # Trigger `nix flake update` if one of these inputs is updated
-FLAKE_COMMIT_MESSAGE="${FLAKE_COMMIT_MESSAGE:-flake: update flake.lock}"       # The commit message to use for flake.lock updates
-PRIMARY_BRANCHES="${PRIMARY_BRANCHES:-main master}"                            # branches that are allowed to have flake.lock changes commited to
+
+DIRECTORY="${UNIFY_DIRECTORY:-/etc/nixos}"                                # Directory that your NixOS config is located in
+IMPORTANT_INPUTS="${UNIFY_TRACKED_INPUTS:-nixpkgs rebuild-but-less-dumb}" # Trigger `nix flake update` if one of these inputs is updated
+FLAKE_COMMIT_MESSAGE="${UNIFY_COMMIT_MESSAGE:-flake: update flake.lock}"  # The commit message to use for flake.lock updates
+PRIMARY_BRANCHES="${UNIFY_PRIMARY_BRANCHES:-main master}"                 # branches that are allowed to have flake.lock changes commited to
 
 # Override default values without setting a permanent custom default via environment vars
 while getopts ":d:i:c:p:" opt; do
