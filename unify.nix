@@ -20,7 +20,7 @@ pkgs.writeShellApplication
     "pipefail"
     "errtrace" # -E
   ];
-  text = 
+  text =
   ''
     shopt -s inherit_errexit
 
@@ -60,7 +60,15 @@ pkgs.writeShellApplication
     {
       sum=0
       for input in $IMPORTANT_INPUTS; do
-        time=$(jq --arg input "$input" '.nodes[.nodes[.root].inputs[$input]].locked.lastModified' flake.lock)
+        time=$(
+          < flake.lock jq --arg input "$input" \
+          '.nodes.[$input].locked.lastModified'
+        )
+        if [[ $time == "null" ]]; then
+          echo "Input \`$input\` wasn't found in the flake.lock. Maybe you named it something else, or made a typo?"
+          return 1
+        fi
+
         sum=$((sum + time))
       done
       echo "$sum" # Returns value of sum
@@ -121,9 +129,12 @@ pkgs.writeShellApplication
       exit 1
     fi
 
-    old_time=$(sum_all_revisions)
+    if ! old_time=$(sum_all_revisions); then
+      echo "$old_time" # We return the error message from the function directly
+      exit 1
+    fi
     nix flake update
-    new_time=$(sum_all_revisions)
+    new_time=$(sum_all_revisions) # We only check for errors once, and don't check again here. Should be fine (hopefully).
 
     echo "Old time: $old_time" # Logs for debugging
     echo "New time: $new_time"
