@@ -13,6 +13,7 @@
     {
       rbld = pkgs.callPackage ./rbld.nix { };
       unify = pkgs.callPackage ./unify.nix { }; 
+      hue = pkgs.callPackage ./hue.nix { };
     });
 
     devShells = forAllSystems (pkgs:
@@ -23,6 +24,7 @@
         [ 
           rbld
           unify
+          hue
         ];
       };
     });
