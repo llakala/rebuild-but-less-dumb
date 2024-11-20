@@ -11,6 +11,7 @@ let
 
   selfDeps = with self.packages.${pkgs.system};
   [
+    rbld
     hue
   ];
 in pkgs.writeShellApplication
