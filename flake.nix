@@ -24,7 +24,7 @@
         [ 
           rbld
           unify
-          hue
+          hue # You don't need to install this manually, it's a dependency of the others. I just use install it manually for debugging
         ];
       };
     });
