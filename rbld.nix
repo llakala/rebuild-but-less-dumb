@@ -16,9 +16,16 @@ in pkgs.writeShellApplication
 {
   name = "rbld";
   runtimeInputs = nixpkgsDeps ++ selfDeps;
+  bashOptions =
+  [
+    "nounset" # -u
+    "errexit" # -e
+    "pipefail"
+    "errtrace" # -E
+  ];
   text =
   ''
-    set -e
+    shopt -s inherit_errexit
 
     directory="''${FLAKE:-/etc/nixos}" # Override default config directory value with $FLAKE
 
