@@ -124,7 +124,7 @@ in pkgs.writeShellApplication
     previous_branch=$(git branch --show-current) # Only set this *after* entering $DIRECTORY
 
     if [[ -n $(git status --porcelain) ]] && ! on_primary_branch "$previous_branch"; then # Exit early if we're not in primary branch and have uncommited changes
-      echo "You have uncommited changes in your current branch $previous_branch."
+      echo "You have uncommited changes in your current branch \`$previous_branch\`."
       echo "This script only updates flake inputs on the primary branch, as it's likely what you meant to do."
       echo "Please stash/commit your changes and try again."
       exit 1
