@@ -125,8 +125,10 @@ in pkgs.writeShellApplication
 
     if [[ -n $(git status --porcelain) ]] && ! on_primary_branch "$previous_branch"; then # Exit early if we're not in primary branch and have uncommited changes
       echo "You have uncommited changes in your current branch \`$previous_branch\`."
-      echo "This script only updates flake inputs on the primary branch, as it's likely what you meant to do."
-      echo "Please stash/commit your changes and try again."
+      echo "Unify only updates flake inputs on the primary branch, as it's likely what you meant to do."
+      echo "You can specify the primary branch/branches to be swapped to like this:"
+      echo "\`unify -p \"main master\"\`"
+      echo "If your working tree is clean, Unify will then switch to a primary branch automatically."
       exit 1
     fi
 
@@ -134,8 +136,8 @@ in pkgs.writeShellApplication
     if switch_to_primary; then
       trap return_to_secondary EXIT # When script ends or is interrupted, swap back to the branch the user was on before
     else
-      echo "Your primary branch can't be found to be swapped to."
-      echo "Complain on Github Issues and I'll add a parameter to choose the primary branch."
+      echo "You provided the primary branches \`$PRIMARY_BRANCHES\` to be switched to automatically."
+      echo "However, none of these branches were found in directory \`$DIRECTORY\`."
       exit 1
     fi
 
