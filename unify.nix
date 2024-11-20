@@ -1,15 +1,22 @@
 { pkgs, self, ... }:
 
-pkgs.writeShellApplication
-{
-  name = "unify";
-  runtimeInputs = with pkgs;
+let
+  nixpkgsDeps = with pkgs;
   [
     git
     jq
     nix
     bash
   ];
+
+  selfDeps = with self.packages.${pkgs.system};
+  [
+    hue
+  ];
+in pkgs.writeShellApplication
+{
+  name = "unify";
+  runtimeInputs = nixpkgsDeps ++ selfDeps;
   excludeShellChecks = # Shellcheck checks to ignore. ex: "SC2016"
   [
 
@@ -110,8 +117,9 @@ pkgs.writeShellApplication
       return 1
     }
 
-
+    hue "$DIRECTORY" # Check that the passed directory was valid
     cd "$DIRECTORY"
+
     previous_branch=$(git branch --show-current) # Only set this *after* entering $DIRECTORY
 
     if [[ -n $(git status --porcelain) ]] && ! on_primary_branch "$previous_branch"; then # Exit early if we're not in primary branch and have uncommited changes

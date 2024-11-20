@@ -1,15 +1,21 @@
 { pkgs, self, ... }:
 
-pkgs.writeShellApplication
-{
-  name = "rbld";
-  runtimeInputs = with pkgs;
+let
+  nixpkgsDeps = with pkgs;
   [
     nix-output-monitor # aka nom
     nixos-rebuild
     git
   ];
 
+  selfDeps = with self.packages.${pkgs.system};
+  [
+    hue
+  ];
+in pkgs.writeShellApplication
+{
+  name = "rbld";
+  runtimeInputs = nixpkgsDeps ++ selfDeps;
   text =
   ''
     set -e
@@ -32,6 +38,7 @@ pkgs.writeShellApplication
       esac
     done
 
+    hue "$directory"
     cd "$directory"
 
     git add -AN # Adds the existence of any new files, but not their contents
