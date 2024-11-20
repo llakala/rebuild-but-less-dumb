@@ -11,8 +11,8 @@
   {
     packages = forAllSystems (pkgs:
     {
-      rbld = pkgs.callPackage ./rbld.nix { };
-      unify = pkgs.callPackage ./unify.nix { }; 
+      rbld = pkgs.callPackage ./rbld.nix { inherit self; };
+      unify = pkgs.callPackage ./unify.nix { inherit self; };
       hue = pkgs.callPackage ./hue.nix { };
     });
 
