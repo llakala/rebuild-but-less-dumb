@@ -18,7 +18,7 @@ fi
 
 cd "$DIRECTORY" # So we can test on the current directory
 
-if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   echo "Directory \`$DIRECTORY\` isn't a git repo, and was expected to be one."
   exit 1
 fi

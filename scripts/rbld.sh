@@ -28,5 +28,5 @@ sudo -v || exit # Rather than having to verify sudo during rebuild, we do it bef
 nixos-rebuild switch \
   --use-remote-sudo --fast \
   --log-format internal-json \
-  --flake "$directory" \
-  |& nom --json || exit 1
+  --flake "$directory" |&
+  nom --json || exit 1

@@ -1,10 +1,10 @@
 shopt -s inherit_errexit
 
 # Use environment variables if they're overriding the default values
-DIRECTORY="${FLAKE:-/etc/nixos}" # Directory that your NixOS config is located in
+DIRECTORY="${FLAKE:-/etc/nixos}"                                               # Directory that your NixOS config is located in
 IMPORTANT_INPUTS="${INPUTS_TRIGGERING_REBUILD:-nixpkgs rebuild-but-less-dumb}" # Trigger `nix flake update` if one of these inputs is updated
-FLAKE_COMMIT_MESSAGE="${FLAKE_COMMIT_MESSAGE:-flake: update flake.lock}" # The commit message to use for flake.lock updates
-PRIMARY_BRANCHES="${PRIMARY_BRANCHES:-main master}" # branches that are allowed to have flake.lock changes commited to
+FLAKE_COMMIT_MESSAGE="${FLAKE_COMMIT_MESSAGE:-flake: update flake.lock}"       # The commit message to use for flake.lock updates
+PRIMARY_BRANCHES="${PRIMARY_BRANCHES:-main master}"                            # branches that are allowed to have flake.lock changes commited to
 
 # Override default values without setting a permanent custom default via environment vars
 while getopts ":d:i:c:p:" opt; do
@@ -38,8 +38,8 @@ sum_all_revisions()
   sum=0
   for input in $IMPORTANT_INPUTS; do
     time=$(
-      < flake.lock jq --arg input "$input" \
-      '.nodes.[$input].locked.lastModified'
+      <flake.lock jq --arg input "$input" \
+        '.nodes.[$input].locked.lastModified'
     )
     if [[ $time == "null" ]]; then
       echo "Input \`$input\` wasn't found in the flake.lock. Maybe you named it something else, or made a typo?"
@@ -80,7 +80,7 @@ on_primary_branch()
 switch_to_primary()
 {
   for branch in $PRIMARY_BRANCHES; do
-    if git rev-parse --verify "$branch" > /dev/null 2>&1; then
+    if git rev-parse --verify "$branch" >/dev/null 2>&1; then
       git switch --quiet "$branch"
       return 0
     fi
@@ -103,7 +103,6 @@ if [[ -n $(git status --porcelain) ]] && ! on_primary_branch "$previous_branch";
   echo "If your working tree is clean, Unify will then switch to a primary branch automatically."
   exit 1
 fi
-
 
 if switch_to_primary; then
   trap return_to_secondary EXIT # When script ends or is interrupted, swap back to the branch the user was on before
