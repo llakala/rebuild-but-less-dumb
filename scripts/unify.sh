@@ -8,26 +8,38 @@ FLAKE_COMMIT_MESSAGE="${UNIFY_COMMIT_MESSAGE:-flake: update flake.lock}"  # The 
 PRIMARY_BRANCHES="${UNIFY_PRIMARY_BRANCHES:-main master}"                 # branches that are allowed to have flake.lock changes commited to
 
 # Override default values without setting a permanent custom default via environment vars
-while getopts ":d:i:c:p:" opt; do
+while [[ $# -gt 0 ]]; do # Options for one-time overrides
+  opt="$1"
+  shift
+
   case $opt in
-    d)
-      DIRECTORY=$OPTARG
+    -d | --directory)
+      DIRECTORY=$1
+      shift
       ;;
-    i)
-      IMPORTANT_INPUTS=$OPTARG
+
+    -i | --inputs)
+      IMPORTANT_INPUTS=$1
+      shift
       ;;
-    c)
-      FLAKE_COMMIT_MESSAGE=$OPTARG
+
+    -c | --commit-message)
+      FLAKE_COMMIT_MESSAGE=$1
+      shift
       ;;
-    p)
-      PRIMARY_BRANCHES=$OPTARG
+
+    -p | --primary-branches)
+      PRIMARY_BRANCHES=$1
+      shift
       ;;
-    \?) # Undefined option like -q
-      echo "Invalid option: -$OPTARG" >&2
+
+    -*)
+      echo "Invalid option \`$opt\`."
       exit 1
       ;;
-    :) # using an argument without passing something (ex: `unify -d`)
-      echo "Option -$OPTARG requires an argument." >&2
+
+    *)
+      echo "Argument \`$opt\` passed without an option."
       exit 1
       ;;
   esac

@@ -3,17 +3,23 @@ shopt -s inherit_errexit
 directory="${RBLD_DIRECTORY:-/etc/nixos}" # Override default config directory value with $FLAKE
 
 # Or, if you just need to override the directory once, use `-d`
-while getopts ":d:" opt; do
-  case $opt in
-    d)
-      directory=$OPTARG
+while [[ $# -gt 0 ]]; do
+  opt="$1"
+  shift
+
+  case "$opt" in
+    -d | --directory)
+      directory="$1"
+      shift
       ;;
-    \?) # Undefined option like -q
-      echo "Invalid option: -$OPTARG" >&2
+
+    -*)
+      echo "Invalid option \`$opt\`."
       exit 1
       ;;
-    :) # Setting -d without an argument
-      echo "Option -$OPTARG requires an argument." >&2
+
+    *)
+      echo "Argument \`$opt\` passed without an option."
       exit 1
       ;;
   esac
