@@ -2,7 +2,8 @@ shopt -s inherit_errexit
 
 directory="${FLAKE:-/etc/nixos}" # Override default config directory value with $FLAKE
 
-while getopts ":d:" opt; do # Or, if you just need to override the directory once, use `-d`
+# Or, if you just need to override the directory once, use `-d`
+while getopts ":d:" opt; do
   case $opt in
     d)
       directory=$OPTARG

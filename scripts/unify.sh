@@ -6,8 +6,8 @@ IMPORTANT_INPUTS="${INPUTS_TRIGGERING_REBUILD:-nixpkgs rebuild-but-less-dumb}" #
 FLAKE_COMMIT_MESSAGE="${FLAKE_COMMIT_MESSAGE:-flake: update flake.lock}" # The commit message to use for flake.lock updates
 PRIMARY_BRANCHES="${PRIMARY_BRANCHES:-main master}" # branches that are allowed to have flake.lock changes commited to
 
-
-while getopts ":d:i:c:p:" opt; do # Override default values without setting a permanent custom default via environment vars
+# Override default values without setting a permanent custom default via environment vars
+while getopts ":d:i:c:p:" opt; do
   case $opt in
     d)
       DIRECTORY=$OPTARG
@@ -32,7 +32,8 @@ while getopts ":d:i:c:p:" opt; do # Override default values without setting a pe
   esac
 done
 
-sum_all_revisions() # Call get_revision_time for each input in IMPORTANT_INPUTS
+# Call get_revision_time for each input in IMPORTANT_INPUTS
+sum_all_revisions()
 {
   sum=0
   for input in $IMPORTANT_INPUTS; do
@@ -50,7 +51,8 @@ sum_all_revisions() # Call get_revision_time for each input in IMPORTANT_INPUTS
   echo "$sum" # Returns value of sum
 }
 
-return_to_secondary() # Called as a trap so we return from main/master to whatever branch the user was on
+# Called as a trap so we return from main/master to whatever branch the user was on
+return_to_secondary()
 {
   current_branch=$(git branch --show-current)
   if [[ $current_branch != "$previous_branch" ]]; then
@@ -59,7 +61,8 @@ return_to_secondary() # Called as a trap so we return from main/master to whatev
   git restore flake.lock
 }
 
-on_primary_branch() # Return whether we're on one of the branches stored in PRIMARY_BRANCHES
+# Return whether we're on one of the branches stored in PRIMARY_BRANCHES
+on_primary_branch()
 {
   local current_branch=$1
 
@@ -73,7 +76,8 @@ on_primary_branch() # Return whether we're on one of the branches stored in PRIM
   return 1
 }
 
-switch_to_primary() # Return 1 if we couldn't find a primary branch to switch into
+# Return 1 if we couldn't find a primary branch to switch into
+switch_to_primary()
 {
   for branch in $PRIMARY_BRANCHES; do
     if git rev-parse --verify "$branch" > /dev/null 2>&1; then
@@ -90,7 +94,8 @@ cd "$DIRECTORY"
 
 previous_branch=$(git branch --show-current) # Only set this *after* entering $DIRECTORY
 
-if [[ -n $(git status --porcelain) ]] && ! on_primary_branch "$previous_branch"; then # Exit early if we're not in primary branch and have uncommited changes
+# Exit early if we're not in primary branch and have uncommited changes
+if [[ -n $(git status --porcelain) ]] && ! on_primary_branch "$previous_branch"; then
   echo "You have uncommited changes in your current branch \`$previous_branch\`."
   echo "Unify only updates flake inputs on the primary branch, as it's likely what you meant to do."
   echo "You can specify the primary branch/branches to be swapped to like this:"
