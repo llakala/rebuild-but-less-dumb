@@ -94,9 +94,9 @@ cd "$DIRECTORY"
 
 previous_branch=$(git branch --show-current) # Only set this *after* entering $DIRECTORY
 
-# Exit early if we're not in primary branch and have uncommited changes
+# Exit early if we're not in primary branch and have uncommmitted changes
 if [[ -n $(git status --porcelain) ]] && ! on_primary_branch "$previous_branch"; then
-  echo "You have uncommited changes in your current branch \`$previous_branch\`."
+  echo "You have uncommitted changes in your current branch \`$previous_branch\`."
   echo "Unify only updates flake inputs on the primary branch, as it's likely what you meant to do."
   echo "You can specify the primary branch/branches to be swapped to like this:"
   echo "\`unify -p \"main master\"\`"
