@@ -57,6 +57,7 @@ return_to_secondary()
 {
   current_branch=$(git branch --show-current)
   if [[ $current_branch != "$previous_branch" ]]; then
+    echo "Returning back to branch $previous_branch"
     git switch --quiet "$previous_branch"
   fi
   git restore flake.lock
@@ -82,6 +83,7 @@ switch_to_primary()
 {
   for branch in $PRIMARY_BRANCHES; do
     if git rev-parse --verify "$branch" >/dev/null 2>&1; then
+      echo "Switching to primary branch $branch"
       git switch --quiet "$branch"
       return 0
     fi
