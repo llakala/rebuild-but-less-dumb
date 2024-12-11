@@ -52,15 +52,21 @@ sum_all_revisions()
   echo "$sum" # Returns value of sum
 }
 
-# Called as a trap so we return from main/master to whatever branch the user was on
-return_to_secondary()
+# Called as a trap so we cleanup all state after running or when interrupted
+# State currently means flake.lock changes or branch being swapped
+cleanup_state()
 {
   current_branch=$(git branch --show-current)
   if [[ $current_branch != "$previous_branch" ]]; then
     echo "Returning back to branch $previous_branch"
     git switch --quiet "$previous_branch"
   fi
-  git restore flake.lock
+
+  # If flake.lock has been modified
+  if ! git diff --exit-code --quiet flake.lock; then
+    echo "Undoing flake.lock changes."
+    git restore flake.lock
+  fi
 }
 
 # Return whether we're on one of the branches stored in PRIMARY_BRANCHES
@@ -97,23 +103,31 @@ cd "$DIRECTORY"
 
 previous_branch=$(git branch --show-current) # Only set this *after* entering $DIRECTORY
 
-# Exit early if we're not in primary branch and have uncommmitted changes
-if [[ -n $(git status --porcelain) ]] && ! on_primary_branch "$previous_branch"; then
+# Check if we need to swap to a primary branch
+if ! on_primary_branch "$previous_branch"; then
+
+  # Exit early if we have uncommmitted changes in non-primary branch
+  if [[ -n $(git status --porcelain) ]]; then
   echo "You have uncommitted changes in your current branch \`$previous_branch\`."
   echo "Unify only updates flake inputs on the primary branch, as it's likely what you meant to do."
   echo "You can specify the primary branch/branches to be swapped to like this:"
   echo "\`unify -p \"main master\"\`"
   echo "If your working tree is clean, Unify will then switch to a primary branch automatically."
   exit 1
+  fi
+
+  # Attempt to switch to primary branch, and exit if we fail to
+  if ! switch_to_primary; then
+    echo "You provided the primary branches \`$PRIMARY_BRANCHES\` to be switched to automatically."
+    echo "However, none of these branches were found in directory \`$DIRECTORY\`."
+    exit 1
+  fi
+
 fi
 
-if switch_to_primary; then
-  trap return_to_secondary EXIT # When script ends or is interrupted, swap back to the branch the user was on before
-else
-  echo "You provided the primary branches \`$PRIMARY_BRANCHES\` to be switched to automatically."
-  echo "However, none of these branches were found in directory \`$DIRECTORY\`."
-  exit 1
-fi
+# From here on, we may have state that needs cleaning up on script exiting / Ctrl+C
+# No matter how we exit, cleanup any state that exists
+trap cleanup_state EXIT
 
 if ! old_time=$(sum_all_revisions); then
   echo "$old_time" # We return the error message from the function directly
@@ -127,11 +141,7 @@ echo "New time: $new_time"
 
 if [[ $old_time == "$new_time" ]]; then
   echo "No important updates to flake.lock, so skipping rebuild"
-
-  echo "Undoing flake.lock changes."
-  git restore flake.lock
-
-  exit 0
+  exit 0 # We revert flake.lock in the trap, so no need to do it here
 fi
 
 rbld -d "$DIRECTORY"
