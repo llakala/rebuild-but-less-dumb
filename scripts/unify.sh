@@ -63,7 +63,7 @@ cleanup_state()
   fi
 
   # If flake.lock has been modified
-  if ! git diff --exit-code flake.lock; then
+  if ! git diff --exit-code --quiet flake.lock; then
     echo "Undoing flake.lock changes."
     git restore flake.lock
   fi
