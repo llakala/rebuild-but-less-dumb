@@ -60,7 +60,12 @@ return_to_secondary()
     echo "Returning back to branch $previous_branch"
     git switch --quiet "$previous_branch"
   fi
-  git restore flake.lock
+
+  # If flake.lock has been modified
+  if ! git diff --exit-code flake.lock; then
+    echo "Undoing flake.lock changes."
+    git restore flake.lock
+  fi
 }
 
 # Return whether we're on one of the branches stored in PRIMARY_BRANCHES
@@ -134,11 +139,7 @@ echo "New time: $new_time"
 
 if [[ $old_time == "$new_time" ]]; then
   echo "No important updates to flake.lock, so skipping rebuild"
-
-  echo "Undoing flake.lock changes."
-  git restore flake.lock
-
-  exit 0
+  exit 0 # We revert flake.lock in the trap, so no need to do it here
 fi
 
 rbld -d "$DIRECTORY"
