@@ -97,23 +97,30 @@ cd "$DIRECTORY"
 
 previous_branch=$(git branch --show-current) # Only set this *after* entering $DIRECTORY
 
-# Exit early if we're not in primary branch and have uncommmitted changes
-if [[ -n $(git status --porcelain) ]] && ! on_primary_branch "$previous_branch"; then
+# Check if we need to swap to a primary branch
+if ! on_primary_branch "$previous_branch"; then
+
+  # Exit early if we have uncommmitted changes in non-primary branch
+  if [[ -n $(git status --porcelain) ]]; then
   echo "You have uncommitted changes in your current branch \`$previous_branch\`."
   echo "Unify only updates flake inputs on the primary branch, as it's likely what you meant to do."
   echo "You can specify the primary branch/branches to be swapped to like this:"
   echo "\`unify -p \"main master\"\`"
   echo "If your working tree is clean, Unify will then switch to a primary branch automatically."
   exit 1
+  fi
+
+  # Attempt to switch to a primary branch
+  if switch_to_primary; then
+    trap return_to_secondary EXIT # When script ends or is interrupted, swap back to the branch the user was on before
+  else
+    echo "You provided the primary branches \`$PRIMARY_BRANCHES\` to be switched to automatically."
+    echo "However, none of these branches were found in directory \`$DIRECTORY\`."
+    exit 1
+  fi
+
 fi
 
-if switch_to_primary; then
-  trap return_to_secondary EXIT # When script ends or is interrupted, swap back to the branch the user was on before
-else
-  echo "You provided the primary branches \`$PRIMARY_BRANCHES\` to be switched to automatically."
-  echo "However, none of these branches were found in directory \`$DIRECTORY\`."
-  exit 1
-fi
 
 if ! old_time=$(sum_all_revisions); then
   echo "$old_time" # We return the error message from the function directly
