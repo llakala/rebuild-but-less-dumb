@@ -52,8 +52,9 @@ sum_all_revisions()
   echo "$sum" # Returns value of sum
 }
 
-# Called as a trap so we return from main/master to whatever branch the user was on
-return_to_secondary()
+# Called as a trap so we cleanup all state after running or when interrupted
+# State currently means flake.lock changes or branch being swapped
+cleanup_state()
 {
   current_branch=$(git branch --show-current)
   if [[ $current_branch != "$previous_branch" ]]; then
@@ -115,10 +116,8 @@ if ! on_primary_branch "$previous_branch"; then
   exit 1
   fi
 
-  # Attempt to switch to a primary branch
-  if switch_to_primary; then
-    trap return_to_secondary EXIT # When script ends or is interrupted, swap back to the branch the user was on before
-  else
+  # Attempt to switch to primary branch, and exit if we fail to
+  if ! switch_to_primary; then
     echo "You provided the primary branches \`$PRIMARY_BRANCHES\` to be switched to automatically."
     echo "However, none of these branches were found in directory \`$DIRECTORY\`."
     exit 1
@@ -126,6 +125,9 @@ if ! on_primary_branch "$previous_branch"; then
 
 fi
 
+# From here on, we may have state that needs cleaning up on script exiting / Ctrl+C
+# No matter how we exit, cleanup any state that exists
+trap cleanup_state EXIT
 
 if ! old_time=$(sum_all_revisions); then
   echo "$old_time" # We return the error message from the function directly
