@@ -14,6 +14,7 @@
       rbld = pkgs.callPackage ./rbld.nix { inherit self; };
       unify = pkgs.callPackage ./unify.nix { inherit self; };
       hue = pkgs.callPackage ./hue.nix { };
+      fuiska = pkgs.callPackage ./fuiska.nix { };
     });
 
     devShells = forAllSystems (pkgs:
@@ -25,6 +26,7 @@
           rbld
           unify
           hue # You don't need to install this manually, it's a dependency of the others. I just use install it manually for debugging
+          fuiska
         ];
       };
     });
