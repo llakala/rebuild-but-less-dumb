@@ -14,7 +14,7 @@
       rbld = pkgs.callPackage ./rbld.nix { inherit self; };
       unify = pkgs.callPackage ./unify.nix { inherit self; };
       hue = pkgs.callPackage ./hue.nix { };
-      fuiska = pkgs.callPackage ./fuiska.nix { };
+      fuiska = pkgs.callPackage ./fuiska.nix { inherit self; };
     });
 
     devShells = forAllSystems (pkgs:

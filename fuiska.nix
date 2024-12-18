@@ -1,13 +1,21 @@
-{ pkgs, ... }:
+{ pkgs, self, ... }:
 
-pkgs.writeShellApplication
+let
+  nixpkgsDeps = with pkgs;
+  [
+    jq
+    git
+  ];
+
+  selfDeps = with self.packages.${pkgs.system};
+  [
+    hue
+  ];
+
+in pkgs.writeShellApplication
 {
   name = "fuiska";
-  runtimeInputs = with pkgs;
-  [
-    git
-    jq
-  ];
+  runtimeInputs = nixpkgsDeps ++ selfDeps;
   bashOptions =
   [
     "nounset" # -u
