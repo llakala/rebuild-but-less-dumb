@@ -8,6 +8,8 @@ cd "$directory"
 contents=$(cat flake.lock)
 inputs=$(echo "$contents" | jq -r ".nodes.root.inputs | keys[]")
 
+output=""
+
 for input in $inputs; do
   data=$(echo "$contents" | jq -r --arg input "$input" '.nodes.[$input]')
 
