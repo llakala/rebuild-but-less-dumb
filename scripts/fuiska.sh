@@ -9,20 +9,27 @@ contents=$(cat flake.lock)
 inputs=$(echo "$contents" | jq -r ".nodes.root.inputs | keys[]")
 
 for input in $inputs; do
-
   data=$(echo "$contents" | jq -r --arg input "$input" '.nodes.[$input]')
 
-  type=$(echo "$data" | jq -r ".original.type")
-  owner=$(echo "$data" | jq -r ".original.owner")
-  repo=$(echo "$data" | jq -r ".original.repo")
-  ref=$(echo "$data" | jq -r ".original.ref") # TODO: HANDLE NULL
-  hash=$(echo "$data" | jq -r ".locked.rev")
 
-  echo "$type"
-  echo "$owner"
-  echo "$repo"
-  echo "$ref"
-  echo "$hash"
-  echo ""
+  # The input will never update if it points to a specific commit hash
+  evergreen=$(echo "$data" | jq -r "if .original.rev then 0 else 1 end")
+
+  if [ "$evergreen" == 0 ]; then
+    continue
+  fi
+
+
+  url=$(echo "$data" | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
+  branch=$(echo "$data" | jq -r 'if .original.ref then .original.ref else "HEAD" end')
+  oldHash=$(echo "$data" | jq -r ".locked.rev")
+
+  newHash=$(git ls-remote "$url" "$branch" | cut -f1)
+
+  if [ "$oldHash" != "$newHash" ]; then
+    output+=$input
+  fi
 
 done
+
+echo "$output"
