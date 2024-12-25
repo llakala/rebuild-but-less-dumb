@@ -26,7 +26,7 @@ for input in $inputs; do
   branch=$(echo "$data" | jq -r 'if .original.ref then .original.ref else "HEAD" end')
 
   oldHash=$(echo "$data" | jq -r ".locked.rev")
-  newHash=$(git ls-remote "$url" "$branch" | cut -f1)
+  newHash=$(git ls-remote --branches "$url" "$branch" | cut -f1)
 
   echo "input: $input"
   echo "url: $url"
