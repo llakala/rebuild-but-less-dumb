@@ -8,7 +8,7 @@ cd "$directory"
 contents=$(cat flake.lock)
 inputs=$(echo "$contents" | jq -r ".nodes.root.inputs | keys[]")
 
-output=""
+echo "Whether each input needs updating:"
 
 for input in $inputs; do
   data=$(echo "$contents" | jq -r --arg input "$input" '.nodes.[$input]')
@@ -24,14 +24,19 @@ for input in $inputs; do
 
   url=$(echo "$data" | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
   branch=$(echo "$data" | jq -r 'if .original.ref then .original.ref else "HEAD" end')
-  oldHash=$(echo "$data" | jq -r ".locked.rev")
 
+  oldHash=$(echo "$data" | jq -r ".locked.rev")
   newHash=$(git ls-remote "$url" "$branch" | cut -f1)
 
+  echo "input: $input"
+  echo "url: $url"
+  echo "branch: $branch"
+
   if [ "$oldHash" != "$newHash" ]; then
-    output+=$input
+    echo "needs update: YES"
+  else
+    echo "needs update: NO"
   fi
+  echo ""
 
 done
-
-echo "$output"
