@@ -36,5 +36,6 @@ inputs=$(echo "$contents" | jq -r ".nodes.root.inputs | keys[]")
 echo "Inputs that need updating:"
 
 for i in $inputs; do
-  func "$i"
+  func "$i" &
 done
+wait
