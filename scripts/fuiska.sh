@@ -24,7 +24,17 @@ func()
   branch=$(echo "$data" | jq -r 'if .original.ref then .original.ref else "HEAD" end')
 
   oldHash=$(echo "$data" | jq -r ".locked.rev")
-  newHash=$(git ls-remote --branches --r "$url" "$branch" | cut -f1)
+
+  if [ "$branch" == "HEAD" ]; then # It doesn't fetch properly with --branches when fetching HEAD
+    newHash=$(git ls-remote "$url" "$branch" | cut -f1)
+  else
+    newHash=$(git ls-remote --branches "$url" "$branch" | cut -f1)
+  fi
+
+  if [ "$newHash" == "" ]; then
+    echo "BAD, $input FAILED"
+    exit 0
+  fi
 
   if [ "$oldHash" != "$newHash" ]; then
     echo "$input"
