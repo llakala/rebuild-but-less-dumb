@@ -21,12 +21,12 @@ check_input()
 
 
   url=$(echo "$data" | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
-  branch=$(echo "$data" | jq -r 'if .original.ref then .original.ref else "HEAD" end')
+  branch=$(echo "$data" | jq -r 'if .original.ref then .original.ref else "" end') # Empty if we don't point to a specific rev
 
   oldHash=$(echo "$data" | jq -r ".locked.rev")
 
-  if [ "$branch" == "HEAD" ]; then # It doesn't fetch properly with --branches when fetching HEAD
-    newHash=$(git ls-remote "$url" "$branch" | cut -f1)
+  if [ "$branch" == "" ]; then # If we're not pointing to a specific branch
+    newHash=$(git ls-remote "$url" "HEAD" | cut -f1)
   else
     newHash=$(git ls-remote --branches "$url" "$branch" | cut -f1)
   fi
