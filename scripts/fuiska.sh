@@ -36,7 +36,6 @@ check_input()
     exit 0 # equivalent of `continue` within a subshell, move onto next input
   fi
 
-
   url=$(echo "$data" | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
   branch=$(echo "$data" | jq -r 'if .original.ref then .original.ref else "" end') # Empty if we don't point to a specific rev
 

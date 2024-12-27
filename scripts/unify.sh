@@ -108,12 +108,12 @@ if ! on_primary_branch "$previous_branch"; then
 
   # Exit early if we have uncommmitted changes in non-primary branch
   if [[ -n $(git status --porcelain) ]]; then
-  echo "You have uncommitted changes in your current branch \`$previous_branch\`."
-  echo "Unify only updates flake inputs on the primary branch, as it's likely what you meant to do."
-  echo "You can specify the primary branch/branches to be swapped to like this:"
-  echo "\`unify -p \"main master\"\`"
-  echo "If your working tree is clean, Unify will then switch to a primary branch automatically."
-  exit 1
+    echo "You have uncommitted changes in your current branch \`$previous_branch\`."
+    echo "Unify only updates flake inputs on the primary branch, as it's likely what you meant to do."
+    echo "You can specify the primary branch/branches to be swapped to like this:"
+    echo "\`unify -p \"main master\"\`"
+    echo "If your working tree is clean, Unify will then switch to a primary branch automatically."
+    exit 1
   fi
 
   # Attempt to switch to primary branch, and exit if we fail to
