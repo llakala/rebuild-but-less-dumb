@@ -2,6 +2,23 @@ shopt -s inherit_errexit
 
 directory="${UNIFY_DIRECTORY:-/etc/nixos}"
 
+# Or, if you just need to override the directory once, use `-d`
+while getopts ":d:" opt; do
+  case $opt in
+    d)
+      directory=$OPTARG
+      ;;
+    \?) # Undefined option like -q
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :) # Setting -d without an argument
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
 hue "$directory"
 cd "$directory"
 
