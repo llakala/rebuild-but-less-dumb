@@ -5,18 +5,18 @@ directory="${UNIFY_DIRECTORY:-/etc/nixos}"
 hue "$directory"
 cd "$directory"
 
-contents=$(cat flake.lock)
+full_contents=$(cat flake.lock)
 
-func()
+check_input()
 {
   input=$1
-  data=$(echo "$contents" | jq -r --arg input "$input" '.nodes.[$input]')
+  data=$(echo "$full_contents" | jq -r --arg input "$input" '.nodes.[$input]')
 
   # The input will never update if it points to a specific commit hash
   evergreen=$(echo "$data" | jq -r "if .original.rev then 0 else 1 end")
 
   if [ "$evergreen" == 0 ]; then
-    exit 0 # equivalent of `continue` within a subshell
+    exit 0 # equivalent of `continue` within a subshell, move onto next input
   fi
 
 
@@ -32,20 +32,23 @@ func()
   fi
 
   if [ "$newHash" == "" ]; then
-    echo "BAD, $input FAILED"
-    exit 0
+    echo "BAD, $input FAILED TO FETCH"
+    exit 1
   fi
 
+  # If input has been updated
   if [ "$oldHash" != "$newHash" ]; then
     echo "$input"
   fi
 }
 
-inputs=$(echo "$contents" | jq -r ".nodes.root.inputs | keys[]")
+inputs=$(echo "$full_contents" | jq -r ".nodes.root.inputs | keys[]")
 
 echo "Inputs that need updating:"
 
+# Parallelize checks for each input
 for i in $inputs; do
-  func "$i" &
+  check_input "$i" &
 done
-wait
+
+wait # Don't exit script till all parallel checks are done
