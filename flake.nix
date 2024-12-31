@@ -7,22 +7,33 @@
       nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed
       (system: function nixpkgs.legacyPackages.${system});
 
+    selfPackagesFromDirectoryRecursive = { directory, pkgs }:
+    nixpkgs.lib.makeScope pkgs.newScope
+    (
+      self: nixpkgs.lib.packagesFromDirectoryRecursive
+      {
+        inherit (self) callPackage;
+        inherit directory;
+      }
+    );
+
   in
   {
-    packages = forAllSystems (pkgs:
-    {
-      rbld = pkgs.callPackage ./rbld.nix { inherit self; };
-      unify = pkgs.callPackage ./unify.nix { inherit self; };
-      hue = pkgs.callPackage ./hue.nix { };
-      fuiska = pkgs.callPackage ./fuiska.nix { inherit self; };
-    });
+    packages = forAllSystems
+    (
+      pkgs: selfPackagesFromDirectoryRecursive
+      {
+        inherit pkgs;
+        directory = ./packages;
+      }
+    );
 
     devShells = forAllSystems (pkgs:
     {
       default = pkgs.mkShell
       {
         packages = with self.packages.${pkgs.system};
-        [ 
+        [
           rbld
           unify
           hue # You don't need to install this manually, it's a dependency of the others. I just use install it manually for debugging

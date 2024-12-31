@@ -1,4 +1,4 @@
-{ pkgs, self, ... }:
+{ pkgs, hue, ... }:
 
 let
   nixpkgsDeps = with pkgs;
@@ -7,7 +7,7 @@ let
     git
   ];
 
-  selfDeps = with self.packages.${pkgs.system};
+  selfDeps =
   [
     hue
   ];
@@ -23,6 +23,6 @@ in pkgs.writeShellApplication
     "pipefail"
     "errtrace" # -E
   ];
-  text = builtins.readFile ./scripts/fuiska.sh;
+  text = builtins.readFile ./fuiska.sh;
 
 }

@@ -1,4 +1,4 @@
-{ pkgs, self, ... }:
+{ pkgs, rbld, hue, ... }:
 
 let
   nixpkgsDeps = with pkgs;
@@ -9,7 +9,7 @@ let
     bash
   ];
 
-  selfDeps = with self.packages.${pkgs.system};
+  selfDeps =
   [
     rbld
     hue
@@ -29,5 +29,5 @@ in pkgs.writeShellApplication
     "pipefail"
     "errtrace" # -E
   ];
-  text = builtins.readFile ./scripts/unify.sh;
+  text = builtins.readFile ./unify.sh;
 }

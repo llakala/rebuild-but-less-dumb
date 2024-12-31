@@ -15,6 +15,6 @@ pkgs.writeShellApplication
     "pipefail"
     "errtrace" # -E
   ];
-  text = builtins.readFile ./scripts/hue.sh;
+  text = builtins.readFile ./hue.sh;
 
 }
