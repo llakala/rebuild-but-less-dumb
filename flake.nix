@@ -1,7 +1,7 @@
 {
   description = "A flake to export my custom rebuild script, Rebuild But Less Dumb (RBLD)";
 
-  inputs.myLib =
+  inputs.llakaLib =
   {
     url = "github:llakala/llakaLib";
     inputs.nixpkgs.follows = "nixpkgs";
@@ -10,20 +10,20 @@
   outputs = { self, nixpkgs, ... } @ inputs:
   let
     # My custom lib functions, declared in another repo so I can use them across projects
-    myLib = inputs.myLib.lib;
+    llakaLib = inputs.llakaLib.lib;
 
   in
   {
-    packages = myLib.forAllSystems
+    packages = llakaLib.forAllSystems
     (
-      pkgs: myLib.collectDirectoryPackages
+      pkgs: llakaLib.collectDirectoryPackages
       {
         inherit pkgs;
         directory = ./packages;
       }
     );
 
-    devShells = myLib.forAllSystems (pkgs:
+    devShells = llakaLib.forAllSystems (pkgs:
     {
       default = pkgs.mkShell
       {

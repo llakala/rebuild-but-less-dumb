@@ -1,17 +1,17 @@
 {
   "nodes": {
-    "myLib": {
+    "llakaLib": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
         ]
       },
       "locked": {
-        "lastModified": 1737049756,
-        "narHash": "sha256-roRyExEz3/e6n9y6evWdj4rLgiP/Rt/1Rdp0UudFdbw=",
+        "lastModified": 1737051768,
+        "narHash": "sha256-/cIHAwzVAoT6U1IDgGXM5orfdkd9Rimyun3FPxPH8r8=",
         "owner": "llakala",
         "repo": "llakaLib",
-        "rev": "71bdddc2528092f8c4db2b285253d0cadae0b30d",
+        "rev": "db672d5363758a2f415947cac651ef6eba2ccbbd",
         "type": "github"
       },
       "original": {
@@ -22,10 +22,10 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1733550349,
-        "narHash": "sha256-NcGumB4Lr6KSDq+nIqXtNA8QwAQKDSZT7N9OTGWbTrs=",
-        "path": "/nix/store/sqmn1ky3k66661h32djyjvsr8l99330z-source",
-        "rev": "e2605d0744c2417b09f8bf850dfca42fcf537d34",
+        "lastModified": 1736916166,
+        "narHash": "sha256-puPDoVKxkuNmYIGMpMQiK8bEjaACcCksolsG36gdaNQ=",
+        "path": "/nix/store/awsvw44jla0idziiks2zwgzslfd2dczn-source",
+        "rev": "e24b4c09e963677b1beea49d411cd315a024ad3a",
         "type": "path"
       },
       "original": {
@@ -35,7 +35,7 @@
     },
     "root": {
       "inputs": {
-        "myLib": "myLib",
+        "llakaLib": "llakaLib",
         "nixpkgs": "nixpkgs"
       }
     }
