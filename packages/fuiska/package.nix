@@ -1,4 +1,4 @@
-{ pkgs, hue, ... }:
+{ pkgs, hue, writeShellApplication, ... }:
 
 let
   nixpkgsDeps = with pkgs;
@@ -12,7 +12,7 @@ let
     hue
   ];
 
-in pkgs.writeShellApplication
+in writeShellApplication
 {
   name = "fuiska";
   runtimeInputs = nixpkgsDeps ++ selfDeps;

@@ -1,6 +1,6 @@
-{ pkgs, ... }:
+{ pkgs, writeShellApplication, ... }:
 
-pkgs.writeShellApplication
+writeShellApplication
 {
   name = "hue";
   runtimeInputs = with pkgs;

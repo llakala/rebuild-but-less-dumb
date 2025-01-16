@@ -1,4 +1,4 @@
-{ pkgs, rbld, hue, ... }:
+{ pkgs, rbld, hue, writeShellApplication, ... }:
 
 let
   nixpkgsDeps = with pkgs;
@@ -14,7 +14,7 @@ let
     rbld
     hue
   ];
-in pkgs.writeShellApplication
+in writeShellApplication
 {
   name = "unify";
   runtimeInputs = nixpkgsDeps ++ selfDeps;
