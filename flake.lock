@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "myLib": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1737049756,
+        "narHash": "sha256-roRyExEz3/e6n9y6evWdj4rLgiP/Rt/1Rdp0UudFdbw=",
+        "owner": "llakala",
+        "repo": "llakaLib",
+        "rev": "71bdddc2528092f8c4db2b285253d0cadae0b30d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "llakala",
+        "repo": "llakaLib",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1733550349,
@@ -15,6 +35,7 @@
     },
     "root": {
       "inputs": {
+        "myLib": "myLib",
         "nixpkgs": "nixpkgs"
       }
     }
