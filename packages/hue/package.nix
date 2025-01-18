@@ -1,6 +1,6 @@
-{ pkgs, writeShellApplication, ... }:
+{ pkgs, llakaLib, ... }:
 
-writeShellApplication
+llakaLib.writeFishApplication
 {
   name = "hue";
   runtimeInputs = with pkgs;
@@ -8,13 +8,5 @@ writeShellApplication
     git
     nix
   ];
-  bashOptions =
-  [
-    "nounset" # -u
-    "errexit" # -e
-    "pipefail"
-    "errtrace" # -E
-  ];
-  text = builtins.readFile ./hue.sh;
-
+  text = builtins.readFile ./hue.fish;
 }
