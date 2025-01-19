@@ -1,10 +1,11 @@
-{ pkgs, hue, writeShellApplication, ... }:
+{ pkgs, hue, llakaLib, ... }:
 
 let
   nixpkgsDeps = with pkgs;
   [
     jq
     git
+    parallel
   ];
 
   selfDeps =
@@ -12,17 +13,11 @@ let
     hue
   ];
 
-in writeShellApplication
+in llakaLib.writeFishApplication
 {
   name = "fuiska";
   runtimeInputs = nixpkgsDeps ++ selfDeps;
-  bashOptions =
-  [
-    "nounset" # -u
-    "errexit" # -e
-    "pipefail"
-    "errtrace" # -E
-  ];
-  text = builtins.readFile ./fuiska.sh;
+
+  text = builtins.readFile ./fuiska.fish;
 
 }
