@@ -1,4 +1,4 @@
-{ pkgs, hue, writeShellApplication, ... }:
+{ pkgs, hue, llakaLib, ... }:
 
 let
   nixpkgsDeps = with pkgs;
@@ -12,16 +12,10 @@ let
   [
     hue
   ];
-in writeShellApplication
+in llakaLib.writeFishApplication
 {
   name = "rbld";
   runtimeInputs = nixpkgsDeps ++ selfDeps;
-  bashOptions =
-  [
-    "nounset" # -u
-    "errexit" # -e
-    "pipefail"
-    "errtrace" # -E
-  ];
-  text = builtins.readFile ./rbld.sh;
+
+  text = builtins.readFile ./rbld.fish;
 }
