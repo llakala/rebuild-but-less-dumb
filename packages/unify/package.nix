@@ -1,4 +1,4 @@
-{ pkgs, rbld, hue, writeShellApplication, ... }:
+{ pkgs, rbld, hue, llakaLib, ... }:
 
 let
   nixpkgsDeps = with pkgs;
@@ -14,20 +14,10 @@ let
     rbld
     hue
   ];
-in writeShellApplication
+in llakaLib.writeFishApplication
 {
   name = "unify";
   runtimeInputs = nixpkgsDeps ++ selfDeps;
-  excludeShellChecks = # Shellcheck checks to ignore. ex: "SC2016"
-  [
 
-  ];
-  bashOptions =
-  [
-    "nounset" # -u
-    "errexit" # -e
-    "pipefail"
-    "errtrace" # -E
-  ];
-  text = builtins.readFile ./unify.sh;
+  text = builtins.readFile ./unify.fish;
 }
