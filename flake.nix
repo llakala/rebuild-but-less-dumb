@@ -18,17 +18,11 @@
     forAllSystems = function: lib.genAttrs
       supportedSystems
       (system: function nixpkgs.legacyPackages.${system});
-
-    # My custom lib functions, declared in another repo so I can use them across projects
-    # Some of them require `pkgs`, so this function gives you a `llakaLib` instance from
-    # `fullLib`, which includes system-dependent functions.
-    mkLlakaLib = system: inputs.llakaLib.fullLib.${system};
-
   in
   {
     packages = forAllSystems
     (
-      pkgs: let llakaLib = mkLlakaLib pkgs.system;
+      pkgs: let llakaLib = inputs.llakaLib.fullLib.${pkgs.system};
       in llakaLib.collectDirectoryPackages
       {
         inherit pkgs;
