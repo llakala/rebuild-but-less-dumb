@@ -160,7 +160,7 @@ if [ $old_time = $new_time ]
     exit 0
 end
 
-rbld -d $DIRECTORY
+rbld -d $DIRECTORY || exit
 
 git commit --quiet --message $COMMIT_MESSAGE flake.lock
 
