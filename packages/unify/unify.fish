@@ -135,9 +135,10 @@ if not on_primary_branch $previous_branch
     end
 end
 
-# From here on, we may have state that needs cleaning up on script exiting / Ctrl+C
+# From here on, we may have state that needs cleaning up on script exiting
 # No matter how we exit, cleanup any state that exists
-trap cleanup_state EXIT
+# We also catch SIGINT to ensure Ctrl+C is caught
+trap cleanup_state EXIT SIGINT
 
 if ! set old_time (sum_all_revisions)
     # We return the error message from the function directly
