@@ -146,7 +146,7 @@ if ! set old_time (sum_all_revisions)
     exit 1
 end
 
-nix flake update
+nix flake update || exit
 
 # We only check for errors once, and don't check again here. Should be fine (hopefully).
 set new_time (sum_all_revisions)
