@@ -1,16 +1,16 @@
-{ pkgs, hue, llakaLib, ... }:
+{ pkgs, llakaLib, hue, fight, ... }:
 
 let
   nixpkgsDeps = with pkgs;
   [
     jq
     git
-    parallel
   ];
 
   selfDeps =
   [
     hue
+    fight
   ];
 
 in llakaLib.writeFishApplication
