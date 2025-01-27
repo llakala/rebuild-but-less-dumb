@@ -1,4 +1,4 @@
-{ pkgs, rbld, hue, llakaLib, ... }:
+{ pkgs, llakaLib, localPackages, ... }:
 
 let
   nixpkgsDeps = with pkgs;
@@ -9,7 +9,7 @@ let
     bash
   ];
 
-  selfDeps =
+  selfDeps = with localPackages;
   [
     rbld
     hue

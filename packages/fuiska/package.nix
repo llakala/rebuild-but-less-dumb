@@ -1,4 +1,4 @@
-{ pkgs, llakaLib, hue, fight, ... }:
+{ pkgs, llakaLib, localPackages, ... }:
 
 let
   nixpkgsDeps = with pkgs;
@@ -7,7 +7,7 @@ let
     git
   ];
 
-  selfDeps =
+  selfDeps = with localPackages;
   [
     hue
     fight
