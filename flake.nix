@@ -14,7 +14,7 @@
 
     # The "normal" systems. If it ever doesn't work with one of these, or you want me
     # to add a system, let me know!
-    supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64_linux" "aarch64-darwin" ];
+    supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
 
     forAllSystems = function: lib.genAttrs
       supportedSystems
