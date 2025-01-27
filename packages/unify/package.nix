@@ -16,7 +16,7 @@ let
   ];
 in llakaLib.writeFishApplication
 {
-  name = "unify";
+  name = "unify"; # Update NixOS Inputs For Yourself
   runtimeInputs = nixpkgsDeps ++ selfDeps;
 
   text = builtins.readFile ./unify.fish;

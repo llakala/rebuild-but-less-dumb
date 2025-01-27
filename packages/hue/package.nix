@@ -2,7 +2,7 @@
 
 llakaLib.writeFishApplication
 {
-  name = "hue";
+  name = "hue"; # Handle Ugly Errors
   runtimeInputs = with pkgs;
   [
     git

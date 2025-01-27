@@ -12,9 +12,10 @@ let
   [
     hue
   ];
+
 in llakaLib.writeFishApplication
 {
-  name = "rbld";
+  name = "rbld"; # Rebuild But Less Dumb
   runtimeInputs = nixpkgsDeps ++ selfDeps;
 
   text = builtins.readFile ./rbld.fish;

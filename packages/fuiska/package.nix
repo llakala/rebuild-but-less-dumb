@@ -15,7 +15,7 @@ let
 
 in llakaLib.writeFishApplication
 {
-  name = "fuiska";
+  name = "fuiska"; # Flake Updates I Should Know About?
   runtimeInputs = nixpkgsDeps ++ selfDeps;
 
   text = builtins.readFile ./fuiska.fish;
