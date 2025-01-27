@@ -52,19 +52,19 @@ set branch (echo $data | jq -r "if .original.ref then .original.ref else \"\" en
 
 set oldHash (echo $data | jq -r ".locked.rev")
 
-if [ "$branch" = "" ]
+if [ $branch = "" ]
     set newHash (git ls-remote $url "HEAD" | cut -f1)
 else
     set newHash (git ls-remote --branches $url $branch | cut -f1)
 end
 
-if [ "$newHash" = "" ]
+if [ $newHash = "" ]
     echo "BAD, $input FAILED TO FETCH"
     exit 1
 end
 
-if [ "$oldHash" != "$newHash" ]
-    echo "$input"
+if [ $oldHash != $newHash ]
+    echo $input
 end
 '
 
