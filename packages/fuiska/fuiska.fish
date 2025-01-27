@@ -2,7 +2,7 @@
 
 function default
     for val in $argv
-        if [ $val != "" ]
+        if [ -n "$val" ]
             echo $val
             break
         end
