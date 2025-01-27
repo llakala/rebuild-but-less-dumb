@@ -42,8 +42,11 @@
           [
             rbld
             unify
-            hue # You don't need to install this manually, it's a dependency of the others. I just use install it manually for debugging
             fuiska
+
+            # Internal dependencies of the other commands, added to the devshell for debugging
+            hue
+            fight
           ];
         };
       }
