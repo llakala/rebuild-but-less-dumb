@@ -1,16 +1,7 @@
 #! /usr/bin/env fish
 
-function default
-    for val in $argv
-        if [ -n "$val" ]
-            echo $val
-            break
-        end
-    end
-end
-
 # Equivalent of "${RBLD_DIRECTORY:/etc/nixos}" in bash
-set directory (default $RBLD_DIRECTORY "/etc/nixos")
+set directory (revive $RBLD_DIRECTORY "/etc/nixos")
 
 set -l option1 (fish_opt --required --short d --long directory)
 set options $option1

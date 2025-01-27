@@ -1,26 +1,17 @@
 #!/usr/bin/env fish
 
-function default
-    for val in $argv
-        if [ -n "$val" ]
-            echo $val
-            break
-        end
-    end
-end
-
 # Use environment variables if they're overriding the default values
 # Directory that your NixOS config is located in
-set DIRECTORY (default $UNIFY_DIRECTORY "/etc/nixos")
+set DIRECTORY (revive $UNIFY_DIRECTORY "/etc/nixos")
 
 # Trigger `nix flake update` if one of these inputs is updated
-set INPUTS (default $UNIFY_TRACKED_INPUTS "nixpkgs menu" | string split -n " ")
+set INPUTS (revive $UNIFY_TRACKED_INPUTS "nixpkgs menu" | string split -n " ")
 
 # The commit message to use for flake.lock updates
-set COMMIT_MESSAGE (default $UNIFY_COMMIT_MESSAGE "flake: update flake.lock")
+set COMMIT_MESSAGE (revive $UNIFY_COMMIT_MESSAGE "flake: update flake.lock")
 
 # branches that are allowed to have flake.lock changes commited to
-set PRIMARY_BRANCHES (default $UNIFY_PRIMARY_BRANCHES "main master" | string split -n " ")
+set PRIMARY_BRANCHES (revive $UNIFY_PRIMARY_BRANCHES "main master" | string split -n " ")
 
 set -l option1 (fish_opt --required --short d --long directory)
 set -l option2 (fish_opt --required --short i --long inputs)

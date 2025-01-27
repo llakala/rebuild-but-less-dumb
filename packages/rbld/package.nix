@@ -11,6 +11,7 @@ let
   selfDeps = with localPackages;
   [
     hue
+    revive
   ];
 
 in llakaLib.writeFishApplication

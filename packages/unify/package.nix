@@ -13,7 +13,9 @@ let
   [
     rbld
     hue
+    revive
   ];
+
 in llakaLib.writeFishApplication
 {
   name = "unify"; # Update NixOS Inputs For Yourself

@@ -11,6 +11,7 @@ let
   [
     hue
     fight
+    revive
   ];
 
 in llakaLib.writeFishApplication
