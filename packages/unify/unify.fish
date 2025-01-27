@@ -14,7 +14,7 @@ end
 set DIRECTORY (default $UNIFY_DIRECTORY "/etc/nixos")
 
 # Trigger `nix flake update` if one of these inputs is updated
-set INPUTS (default $UNIFY_TRACKED_INPUTS "nixpkgs rebuild-but-less-dumb" | string split -n " ")
+set INPUTS (default $UNIFY_TRACKED_INPUTS "nixpkgs menu" | string split -n " ")
 
 # The commit message to use for flake.lock updates
 set COMMIT_MESSAGE (default $UNIFY_COMMIT_MESSAGE "flake: update flake.lock")

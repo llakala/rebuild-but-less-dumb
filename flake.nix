@@ -1,5 +1,6 @@
 {
-  description = "A flake to export my custom rebuild script, Rebuild But Less Dumb (RBLD)";
+  # Menu stands for: My Excellent NixOS Utils
+  description = "Menu, a collection of NixOS utilities.";
 
   inputs.llakaLib =
   {
