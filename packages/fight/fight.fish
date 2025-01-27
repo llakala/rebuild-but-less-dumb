@@ -6,7 +6,7 @@ set full_contents $argv[2]
 
 set data (echo $full_contents | jq -r --arg input $input '.nodes[$input]')
 
-if test -z "$data"
+if [ -z "$data" ]
     echo "No data found for input: $input"
     exit 1
 end
@@ -23,18 +23,18 @@ set branch (echo $data | jq -r 'if .original.ref then .original.ref else "" end'
 
 set oldHash (echo $data | jq -r ".locked.rev")
 
-if [ "$branch" = "" ]
+if [ -z "$branch" ]
     set newHash (git ls-remote $url "HEAD" | cut -f1)
 else
     set newHash (git ls-remote --branches $url $branch | cut -f1)
 
-    if [ "$newHash" = "" ] # What we assumed was a branch may have been a tag
+    if [ -z "$newHash" ] # What we assumed was a branch may have been a tag
         set newHash (git ls-remote --tags $url $branch | cut -f1)
     end
 
 end
 
-if [ "$newHash" = "" ]
+if [ -z "$newHash" ]
     echo "BAD, $input FAILED TO FETCH"
     exit 1
 end
