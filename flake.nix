@@ -47,6 +47,7 @@
             # Internal dependencies of the other commands, added to the devshell for debugging
             hue
             fight
+            revive
           ];
         };
       }
