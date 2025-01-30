@@ -2,10 +2,15 @@
   # Menu stands for: My Excellent NixOS Utils
   description = "Menu, a collection of NixOS utilities.";
 
-  inputs.llakaLib =
+  inputs =
   {
-    url = "github:llakala/llakaLib";
-    inputs.nixpkgs.follows = "nixpkgs";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+    llakaLib =
+    {
+      url = "github:llakala/llakaLib";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, ... } @ inputs:

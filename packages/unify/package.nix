@@ -5,7 +5,7 @@ let
   [
     git
     jq
-    nix
+    lix
     bash
   ];
 
