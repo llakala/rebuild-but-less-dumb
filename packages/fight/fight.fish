@@ -33,22 +33,24 @@ switch $host
         # We make URL point to generic repo, and pass ref in as an argument
         set url (echo $data | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
 
-        if [ -z "$ref" ]
+        if [ -z "$ref" ] # If we don't point to a specific tag or branch
             set newHash (git ls-remote $url "HEAD" | cut -f1)
         else
             set newHash (git ls-remote --branches $url $ref | cut -f1)
         end
 
         # What we assumed was a branch may have been a tag
-        # We use ^{} to get the revision of the latest commit, not just the tag
+        # We use `*` to grab the commit hash from annotated tags
+        # We then access the last element, so it works for both annotated and lightweight tags
         if [ -z "$newHash" ]
-            set newHash (git ls-remote --tags $url "$ref^{}" | cut -f1)
+            set temp (git ls-remote --tags $url "$ref*" | cut -f1)
+            set newHash $temp[-1]
         end
 
 end
 
 if [ -z "$newHash" ]
-    echo "$input failed to fetch a commit hash with url $url"
+    echo "$input failed to fetch a commit hash with url $url and ref $ref"
     exit 1
 end
 
