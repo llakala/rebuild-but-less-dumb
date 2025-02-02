@@ -3,7 +3,6 @@
 
 set input $argv[1]
 set full_contents $argv[2]
-set api $argv[3] # If it's set to "false", don't fetch from API
 
 set data (echo $full_contents | jq -r --arg input $input '.nodes[$input]')
 
@@ -24,21 +23,9 @@ set ref (echo $data | jq -r 'if .original.ref then .original.ref else "" end') #
 
 set host (echo $data | jq -r ".original.type")
 
-if [ "$api" = false ]
-    set host none # Use the generic git fetcher
-end
-
 switch $host
 
-    case github # https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28
-        set url (echo $data | jq -r '"https://api.github.com/repos/" + .locked.owner + "/" + .original.repo + "/commits/" + if .original.ref then .original.ref else "HEAD" end')
-        set newHash (curl --silent $url | jq -r ".sha")
-
-    case gitlab # https://docs.gitlab.com/ee/api/commits.html
-        set url (echo $data | jq -r '"https://gitlab.com/api/v4/projects/" + .locked.owner + "%2F" + .original.repo + "/repository/commits/" + if .original.ref then .original.ref else "HEAD" end')
-        set newHash (curl --silent $url | jq -r ".id")
-
-    case '*' # Any other forge
+    case '*'
         # We make URL point to generic repo, and pass ref in as an argument
         set url (echo $data | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
 
