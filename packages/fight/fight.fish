@@ -20,7 +20,7 @@ if [ $evergreen = 0 ]
 end
 
 set oldHash (echo $data | jq -r ".locked.rev")
-set branch (echo $data | jq -r 'if .original.ref then .original.ref else "" end')
+set ref (echo $data | jq -r 'if .original.ref then .original.ref else "" end') # Either a branch or a tag
 
 set host (echo $data | jq -r ".original.type")
 
@@ -39,17 +39,19 @@ switch $host
         set newHash (curl --silent $url | jq -r ".id")
 
     case '*' # Any other forge
-        # We make URL branchless here, and pass it in as an argument
+        # We make URL point to generic repo, and pass ref in as an argument
         set url (echo $data | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
 
-        if [ -z "$branch" ]
+        if [ -z "$ref" ]
             set newHash (git ls-remote $url "HEAD" | cut -f1)
         else
-            set newHash (git ls-remote --branches $url $branch | cut -f1)
+            set newHash (git ls-remote --branches $url $ref | cut -f1)
         end
 
-        if [ -z "$newHash" ] # What we assumed was a branch may have been a tag
-            set newHash (git ls-remote --tags $url $branch | cut -f1)
+        # What we assumed was a branch may have been a tag
+        # We use ^{} to get the revision of the latest commit, not just the tag
+        if [ -z "$newHash" ]
+            set newHash (git ls-remote --tags $url "$ref^{}" | cut -f1)
         end
 
 end
