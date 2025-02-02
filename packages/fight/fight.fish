@@ -25,6 +25,10 @@ set host (echo $data | jq -r ".original.type")
 
 switch $host
 
+    case tarball
+        echo "WARNING: skipping input $input, as it's currently unparseable"
+        exit 0
+
     case '*'
         # We make URL point to generic repo, and pass ref in as an argument
         set url (echo $data | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
