@@ -4,6 +4,8 @@
 
   inputs =
   {
+    # If you want to use `follows`, make it follow your own unstable input
+    # for access to nixos-rebuild-ng
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     llakaLib =

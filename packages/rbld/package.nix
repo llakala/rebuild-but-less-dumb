@@ -1,7 +1,7 @@
 { pkgs, llakaLib, localPackages, ... }:
 
 let
-  lixos-rebuild = pkgs.nixos-rebuild.override
+  lixos-rebuild-ng = pkgs.nixos-rebuild-ng.override
   {
     nix = pkgs.lix;
   };
@@ -9,7 +9,7 @@ let
   [
     nix-output-monitor # aka nom
     git
-  ] ++ lib.singleton lixos-rebuild;
+  ] ++ lib.singleton lixos-rebuild-ng;
 
   selfDeps = with localPackages;
   [
