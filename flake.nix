@@ -43,7 +43,7 @@
     devShells = forAllSystems
     (pkgs:
       {
-        default = pkgs.mkShell
+        default = pkgs.mkShellNoCC
         {
           packages = with self.legacyPackages.${pkgs.system};
           [
