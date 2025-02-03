@@ -50,7 +50,7 @@ switch $host
 end
 
 if [ -z "$newHash" ]
-    echo "$input failed to fetch a commit hash with url $url and ref $ref"
+    echo "$input failed to fetch a commit hash with url `$url` and ref `$ref`"
     exit 1
 end
 
