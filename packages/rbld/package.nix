@@ -1,4 +1,4 @@
-{ pkgs, llakaLib, localPackages, ... }:
+{ pkgs, llakaLib, lib, localPackages, ... }:
 
 let
   lixos-rebuild-ng = pkgs.nixos-rebuild-ng.override
@@ -17,7 +17,14 @@ let
     revive
   ];
 
-in llakaLib.writeFishApplication
+in
+assert lib.assertMsg (pkgs ? nixos-rebuild-ng)
+''
+RBLD relies on nixos-rebuild-ng, but it wasn't found in pkgs.
+This likely means you made Menu follow nixpkgs 24.11, which doesn't have nixos-rebuild-ng.
+Instead, have Menu follow nixpkgs-unstable.
+'';
+llakaLib.writeFishApplication
 {
   name = "rbld"; # Rebuild But Less Dumb
   runtimeInputs = nixpkgsDeps ++ selfDeps;
