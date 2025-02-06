@@ -41,7 +41,8 @@
     );
 
     devShells = forAllSystems
-    (pkgs:
+    (
+      pkgs:
       {
         default = pkgs.mkShellNoCC
         {
