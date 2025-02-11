@@ -25,11 +25,7 @@ set host (echo $data | jq -r ".original.type")
 
 switch $host
 
-    case tarball
-        echo "WARNING: skipping input $input, as it's currently unparseable"
-        exit 0
-
-    case '*'
+    case github gitlab git
         # We make URL point to generic repo, and pass ref in as an argument
         set url (echo $data | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
 
@@ -46,6 +42,11 @@ switch $host
             set temp (git ls-remote --tags $url "$ref*" | cut -f1)
             set newHash $temp[-1]
         end
+
+
+    case '*'
+        echo "WARNING: skipping input $input of type $host, as it's currently unparseable"
+        exit 0
 
 end
 
