@@ -29,29 +29,28 @@ switch $host
         # We make URL point to generic repo, and pass ref in as an argument
         set url (echo $data | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
 
-        if [ -z "$ref" ] # If we don't point to a specific tag or branch
-            set newHash (git ls-remote $url "HEAD" | cut -f1)
-        else
-            set newHash (git ls-remote --branches $url $ref | cut -f1)
-        end
-
-        # What we assumed was a branch may have been a tag
-        # We use `*` to grab the commit hash from annotated tags
-        # We then access the last element, so it works for both annotated and lightweight tags
-        if [ -z "$newHash" ]
-            set temp (git ls-remote --tags $url "$ref*" | cut -f1)
-            set newHash $temp[-1]
-        end
-
-
     case '*'
         echo "WARNING: skipping input $input of type $host, as it's currently unparseable"
         exit 0
 
 end
 
+if [ -z "$ref" ] # If we don't point to a specific tag or branch
+    set newHash (git ls-remote $url "HEAD" | cut -f1)
+else
+    set newHash (git ls-remote --branches $url $ref | cut -f1)
+end
+
+# What we assumed was a branch may have been a tag
+# We use `*` to grab the commit hash from annotated tags
+# We then access the last element, so it works for both annotated and lightweight tags
 if [ -z "$newHash" ]
-    echo "$input failed to fetch a commit hash with url `$url` and ref `$ref`"
+    set temp (git ls-remote --tags $url "$ref*" | cut -f1)
+    set newHash $temp[-1]
+end
+
+if [ -z "$newHash" ]
+    echo "ERROR: $input failed to fetch a commit hash with url `$url` and ref `$ref`"
     exit 1
 end
 
