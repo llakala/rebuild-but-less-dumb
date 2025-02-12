@@ -57,5 +57,17 @@ end
 
 
 if [ $oldHash != $newHash ]
-    echo $input
+    set epoch (echo $data | jq -r ".locked.lastModified") # Time of last revision in Epoch time
+
+    set then (date --date "@$epoch" --iso-8601=hours)
+    set now (date --date now --iso-8601=hours)
+
+    set days (datediff $then $now -f "%d")
+    set hours (datediff $then $now -f "%h")
+
+    if [ $days = 0 ]
+        echo "$input (from $hours hours ago)"
+    else
+        echo "$input (from $days days ago)"
+    end
 end

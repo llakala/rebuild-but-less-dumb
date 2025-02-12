@@ -7,6 +7,7 @@ llakaLib.writeFishApplication
   [
     git
     jq
+    dateutils
   ];
 
   text = builtins.readFile ./fight.fish;
