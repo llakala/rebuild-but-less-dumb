@@ -29,6 +29,30 @@ switch $host
         # We make URL point to generic repo, and pass ref in as an argument
         set url (echo $data | jq -r '"https://" + .original.type + ".com/" + .locked.owner + "/" + .original.repo + ".git"')
 
+    case tarball
+        # Flakes provide the direct tarball URL, but it's pointing to a tarball,
+        # which we can't query without downloading.
+        # Instead, we check if the URL looks something like:
+        # `web.site/$1/$2/archive/$3.tar.gz'
+        # If so, we can try ls-remote on it
+        set tarballUrl (echo $data | jq -r '.original.url')
+        set regexPattern '(https?:\/(?:\/[^\/]+){3})\/(?:archive|releases\/download)\/(?:refs\/tags\/)?([^\/]+)(?:\/[^\/]+)?(?:\.tar\.gz|\.zip|\.tar\.xz)'
+
+        if ! echo $tarballUrl | rg -q --pcre2 $regexPattern # URL doesn't match
+            echo "WARNING: skipping input $input of type tarball, as it can't be automatically reconstructed into a repo link"
+            exit 0
+        end
+
+        set url (echo $tarballUrl | rg -N --color=never --pcre2 $regexPattern --replace '$1')
+        set ref (echo $tarballUrl | rg -N --color=never --pcre2 $regexPattern --replace '$2')
+
+        # Check if the ref is a specific commit, which can't be checked by ls-remote
+        # Commits should be evergeen, skip it and move on
+        if [ (echo -n $ref | wc -c) = 40 ]
+            exit 0
+        end
+
+
     case '*'
         echo "WARNING: skipping input $input of type $host, as it's currently unparseable"
         exit 0
@@ -45,7 +69,13 @@ end
 # We use `*` to grab the commit hash from annotated tags
 # We then access the last element, so it works for both annotated and lightweight tags
 if [ -z "$newHash" ]
-    set temp (git ls-remote --tags $url "$ref*" | cut -f1)
+
+    # Nix doesn't unpeel tarball refs
+    if [ $host != "tarball" ]
+      set ref "$ref*"
+    end
+
+    set temp (git ls-remote --tags $url $ref | cut -f1)
     set newHash $temp[-1]
 end
 
