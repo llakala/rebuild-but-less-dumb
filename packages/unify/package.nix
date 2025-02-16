@@ -4,9 +4,6 @@ let
   nixpkgsDeps = with pkgs;
   [
     git
-    jq
-    lix
-    bash
   ];
 
   selfDeps = with localPackages;
@@ -14,6 +11,7 @@ let
     rbld
     hue
     revive
+    balc
   ];
 
 in llakaLib.writeFishApplication

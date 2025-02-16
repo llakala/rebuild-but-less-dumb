@@ -5,7 +5,8 @@
 set DIRECTORY (revive $UNIFY_DIRECTORY "/etc/nixos")
 
 # Trigger `nix flake update` if one of these inputs is updated
-set INPUTS (revive $UNIFY_TRACKED_INPUTS "nixpkgs menu" | string split -n " ")
+# We don't split this yet for easier sending to `balc`
+set INPUTS (revive $UNIFY_TRACKED_INPUTS "nixpkgs menu")
 
 # The commit message to use for flake.lock updates
 set COMMIT_MESSAGE (revive $UNIFY_COMMIT_MESSAGE "flake: update flake.lock")
@@ -36,25 +37,6 @@ end
 if set -q _flag_primary_branches
     set PRIMARY_BRANCHES $_flag_primary_branches
 end
-
-
-
-
-# Call get_revision_time for each input in INPUTS
-function sum_all_revisions
-    set sum 0
-    for input in $INPUTS
-        set time (cat flake.lock | jq --arg input $input '.nodes.[$input].locked.lastModified')
-
-        if [ $time = null ]
-            echo "Input `$input` wasn't found in the flake.lock. Maybe you named it something else, or made a typo?"
-            return 1
-        end
-        set sum (math "$sum + $time")
-    end
-    echo $sum # Returns value of sum
-end
-
 
 # Called as a trap so we cleanup all state after running or when interrupted
 # State currently means flake.lock changes or branch being swapped
@@ -131,26 +113,9 @@ end
 # We also catch SIGINT to ensure Ctrl+C is caught
 trap cleanup_state EXIT SIGINT
 
-if ! set old_time (sum_all_revisions)
-    # We return the error message from the function directly
-    echo $old_time
-    exit 1
-end
-
-nix flake update || exit
-
-# We only check for errors once, and don't check again here. Should be fine (hopefully).
-set new_time (sum_all_revisions)
-
-# Logs for debugging
-echo "Old time: $old_time"
-echo "New time: $new_time"
-
-if [ $old_time = $new_time ]
-    echo "No important updates to flake.lock, so skipping rebuild"
-    # We revert flake.lock in the trap, so no need to do it here
-    exit 0
-end
+# Custom command that checks whether we care about updated inputs.
+# Alternative implementations coming!
+balc $INPUTS || exit
 
 rbld -d $DIRECTORY || exit
 

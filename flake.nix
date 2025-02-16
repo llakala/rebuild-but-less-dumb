@@ -56,6 +56,7 @@
             hue
             fight
             revive
+            balc
           ];
         };
       }
