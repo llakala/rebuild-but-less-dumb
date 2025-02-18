@@ -46,18 +46,10 @@
       {
         default = pkgs.mkShellNoCC
         {
-          packages = with self.legacyPackages.${pkgs.system};
-          [
-            rbld
-            unify
-            fuiska
-
-            # Internal dependencies of the other commands, added to the devshell for debugging
-            hue
-            fight
-            revive
-            balc
-          ];
+          # Expose all packages provided by the flake, using collect to recurse into subfolders.
+          # We filter for derivations, since the output of collectDirectoryPackages leaves some
+          # functions in the packages list, which we filter out by only grabbing derivations.
+          packages = lib.collect (lib.isDerivation) self.legacyPackages.${pkgs.system};
         };
       }
     );
