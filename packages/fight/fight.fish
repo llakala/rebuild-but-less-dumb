@@ -61,21 +61,22 @@ end
 
 if [ -z "$ref" ] # If we don't point to a specific tag or branch
     set newHash (git ls-remote $url "HEAD" | cut -f1)
+
+# Check both branches AND tags. We check for both the normal ref and the unpeeled ref.
+# We need to do this because using `*` results in the branch `nixos-unstable*` also
+# matching `nixos-unstable-small`. Unpeeling the ref will do nothing for branches, but
+# it lets annotated tags work properly. If the tag was annotated, we'll get two lines
+# of output, one for the lightweight, and one for the annotated - which Fish turns
+# into a list of length 2. Lightweight and annotated tags will be in a list of length 1.
+# We then access the last element of the list, so if the ref was an annotated tag, we
+# grab the right part, but lightweight tags and branches still work like normal.
 else
-    set newHash (git ls-remote --branches $url $ref | cut -f1)
-end
-
-# What we assumed was a branch may have been a tag
-# We use `*` to grab the commit hash from annotated tags
-# We then access the last element, so it works for both annotated and lightweight tags
-if [ -z "$newHash" ]
-
-    # Nix doesn't unpeel tarball refs
+    # Nix doesn't unpeel tarball refs, so we don't either to compare with the revision it stores
     if [ $host != "tarball" ]
-      set ref "$ref*"
+      set ref $ref $ref^{}
     end
 
-    set temp (git ls-remote --tags $url $ref | cut -f1)
+    set temp (git ls-remote --branches --tags $url $ref | cut -f1)
     set newHash $temp[-1]
 end
 
