@@ -45,6 +45,9 @@ switch $host
             exit 0
         end
 
+        set url $both[1]
+        set ref $both[2]
+
         # Check if the ref is a specific commit, which can't be checked by ls-remote
         # Commits should be evergeen, skip it and move on
         if [ (echo -n $ref | wc -c) = 40 ]
